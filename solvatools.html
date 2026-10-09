@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes" />
+    <title>SOLVA-Tools – SOLVATECH Student Tools</title>
+
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+    <!-- Google Fonts Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
+
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #f4f7fc;
+            color: #0B1A2E;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+            padding: 1rem 1rem 2rem;
+        }
+        a { text-decoration: none; color: inherit; }
+        .container { width: 100%; max-width: 700px; margin: 0 auto; }
+
+        /* Loading overlay */
+        .loading-overlay {
+            position: fixed; top:0; left:0; width:100%; height:100%;
+            background: #f4f7fc;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            z-index: 9999;
+            transition: opacity 0.4s;
+        }
+        .loading-overlay.hidden { opacity: 0; pointer-events: none; }
+        .loading-spinner {
+            width: 50px; height: 50px; border: 4px solid #d0d7de; border-top-color: #1E88E5;
+            border-radius: 50%; animation: spin 0.8s linear infinite; margin-bottom: 1rem;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        .loading-overlay p { color: #5a6b7b; font-weight: 600; }
+
+        /* Branding */
+        .brand { display: flex; align-items: center; justify-content: center; gap: 0.5rem; margin-bottom: 1.5rem; margin-top: 1rem; }
+        .brand-logo { font-size: 2.2rem; color: #1E88E5; }
+        .brand-text { font-size: 1.7rem; font-weight: 800; color: #0B1A2E; letter-spacing: -0.5px; }
+        .brand-text span { color: #1E88E5; }
+
+        /* Back button */
+        .back-btn {
+            display: inline-flex; align-items: center; gap: 0.5rem;
+            margin-bottom: 1.5rem; font-weight: 700; color: #1E88E5;
+            font-size: 0.95rem; transition: color 0.2s, transform 0.2s;
+        }
+        .back-btn:hover { color: #1565C0; transform: translateX(-3px); }
+
+        /* Page header */
+        .page-header { text-align: center; margin-bottom: 1.5rem; }
+        .page-header h1 { font-size: 2rem; font-weight: 900; color: #0B1A2E; }
+        .page-header h1 span { color: #1E88E5; }
+        .page-header p { color: #5a6b7b; margin-top: 0.3rem; font-size: 1rem; }
+
+        /* Intro */
+        .intro {
+            text-align: center; margin-bottom: 1.5rem; font-size: 0.95rem; color: #5a6b7b;
+            background: #eef2f6; padding: 0.8rem 1rem; border-radius: 12px;
+        }
+        .intro strong { color: #0B1A2E; }
+
+        /* Search box */
+        .search-box {
+            width: 100%; padding: 0.9rem 1rem; font-size: 1rem; border: 2px solid #d0d7de; border-radius: 12px;
+            outline: none; transition: border-color 0.2s; background: #fff; margin-bottom: 1.5rem;
+        }
+        .search-box:focus { border-color: #1E88E5; }
+
+        /* Grid */
+        .reference-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 0.8rem;
+        }
+        .ref-card {
+            background: #ffffff; border-radius: 16px; padding: 1.2rem;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05); border: 1px solid #e9eef3;
+            display: flex; align-items: center; gap: 1rem;
+            transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s;
+            animation: fadeInUp 0.3s ease both;
+        }
+        .ref-card:hover { transform: translateY(-2px); box-shadow: 0 8px 18px rgba(0,0,0,0.1); border-color: #1E88E5; }
+        .ref-card:active { transform: scale(0.98); }
+        .ref-icon {
+            width: 50px; height: 50px; border-radius: 12px; background: #eef2f6;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.5rem; color: #1E88E5; flex-shrink: 0;
+        }
+        .ref-info { flex: 1; }
+        .ref-name { font-weight: 800; font-size: 1.05rem; margin-bottom: 0.15rem; }
+        .ref-desc { font-size: 0.85rem; color: #5a6b7b; }
+
+        /* Stagger animation */
+        .ref-card:nth-child(1) { animation-delay: 0.05s; }
+        .ref-card:nth-child(2) { animation-delay: 0.1s; }
+        .ref-card:nth-child(3) { animation-delay: 0.15s; }
+        .ref-card:nth-child(4) { animation-delay: 0.2s; }
+        .ref-card:nth-child(5) { animation-delay: 0.25s; }
+        .ref-card:nth-child(6) { animation-delay: 0.3s; }
+        .ref-card:nth-child(7) { animation-delay: 0.35s; }
+        .ref-card:nth-child(8) { animation-delay: 0.4s; }
+        .ref-card:nth-child(9) { animation-delay: 0.45s; }
+        .ref-card:nth-child(10) { animation-delay: 0.5s; }
+        .ref-card:nth-child(11) { animation-delay: 0.55s; }
+        .ref-card:nth-child(12) { animation-delay: 0.6s; }
+
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .no-results {
+            text-align: center; color: #888; padding: 1.5rem; background: #fff; border-radius: 12px;
+            border: 1px solid #e9eef3; display: none;
+        }
+
+        /* Footer */
+        .footer {
+            text-align: center; margin-top: 2rem; font-size: 0.75rem; color: #888;
+            padding-top: 1rem; border-top: 1px solid #e9eef3;
+        }
+
+        /* Responsive */
+        @media (min-width: 600px) {
+            .reference-grid { grid-template-columns: repeat(2, 1fr); }
+            .page-header h1 { font-size: 2.2rem; }
+        }
+        @media (max-width: 350px) {
+            .ref-card { padding: 1rem; }
+            .ref-icon { width: 45px; height: 45px; font-size: 1.3rem; }
+            .ref-name { font-size: 0.95rem; }
+            .ref-desc { font-size: 0.75rem; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Loading overlay -->
+    <div class="loading-overlay" id="loadingOverlay">
+        <div class="loading-spinner"></div>
+        <p>Checking access...</p>
+    </div>
+
+    <!-- Main content -->
+    <div class="container" id="mainContent" style="display: none;">
+        <!-- Branding -->
+        <div class="brand">
+            <i class="fas fa-cube brand-logo"></i>
+            <div class="brand-text">SOLVA<span>TECH</span></div>
+        </div>
+
+        <!-- Back button -->
+        <a href="index.html" class="back-btn"><i class="fas fa-arrow-left"></i> Back to Student Tools</a>
+
+        <!-- Page header -->
+        <div class="page-header">
+            <h1>SOLVA-<span>Tools</span></h1>
+            <p>Quick reference for your development journey.</p>
+        </div>
+
+        <!-- Intro -->
+        <div class="intro">
+            <strong>Forgot what something is used for?</strong><br>
+            Check the quick reference below.
+        </div>
+
+        <!-- Search -->
+        <input type="text" id="searchBox" class="search-box" placeholder="Search tools..." />
+
+        <!-- Reference grid -->
+        <div class="reference-grid" id="referenceGrid">
+            <div class="ref-card" data-name="HTML">
+                <div class="ref-icon"><i class="fab fa-html5"></i></div>
+                <div class="ref-info">
+                    <div class="ref-name">HTML</div>
+                    <div class="ref-desc">Website structure and content.</div>
+                </div>
+            </div>
+
+            <div class="ref-card" data-name="CSS">
+                <div class="ref-icon"><i class="fab fa-css3-alt"></i></div>
+                <div class="ref-info">
+                    <div class="ref-name">CSS</div>
+                    <div class="ref-desc">Website styling and appearance.</div>
+                </div>
+            </div>
+
+            <div class="ref-card" data-name="JavaScript">
+                <div class="ref-icon"><i class="fab fa-js-square"></i></div>
+                <div class="ref-info">
+                    <div class="ref-name">JavaScript</div>
+                    <div class="ref-desc">Website interaction and behavior.</div>
+                </div>
+            </div>
+
+            <div class="ref-card" data-name="GitHub">
+                <div class="ref-icon"><i class="fab fa-github"></i></div>
+                <div class="ref-info">
+                    <div class="ref-name">GitHub</div>
+                    <div class="ref-desc">Website project storage and hosting.</div>
+                </div>
+            </div>
+
+            <div class="ref-card" data-name="Firebase">
+                <div class="ref-icon"><i class="fas fa-database"></i></div>
+                <div class="ref-info">
+                    <div class="ref-name">Firebase</div>
+                    <div class="ref-desc">Backend services for web projects.</div>
+                </div>
+            </div>
+
+            <div class="ref-card" data-name="Telegram Bot">
+                <div class="ref-icon"><i class="fab fa-telegram-plane"></i></div>
+                <div class="ref-info">
+                    <div class="ref-name">Telegram Bot</div>
+                    <div class="ref-desc">Automated communication with Telegram.</div>
+                </div>
+            </div>
+
+            <div class="ref-card" data-name="Paystack / Flutterwave">
+                <div class="ref-icon"><i class="fas fa-credit-card"></i></div>
+                <div class="ref-info">
+                    <div class="ref-name">Paystack / Flutterwave</div>
+                    <div class="ref-desc">Payments for websites.</div>
+                </div>
+            </div>
+
+            <div class="ref-card" data-name="Google Search">
+                <div class="ref-icon"><i class="fab fa-google"></i></div>
+                <div class="ref-info">
+                    <div class="ref-name">Google Search</div>
+                    <div class="ref-desc">Helping people discover your website.</div>
+                </div>
+            </div>
+
+            <div class="ref-card" data-name="Social Preview">
+                <div class="ref-icon"><i class="fas fa-share-alt"></i></div>
+                <div class="ref-info">
+                    <div class="ref-name">Social Preview</div>
+                    <div class="ref-desc">Controls how shared website links appear.</div>
+                </div>
+            </div>
+
+            <div class="ref-card" data-name="AdSense">
+                <div class="ref-icon"><i class="fas fa-ad"></i></div>
+                <div class="ref-info">
+                    <div class="ref-name">AdSense</div>
+                    <div class="ref-desc">Website advertising and monetization.</div>
+                </div>
+            </div>
+
+            <div class="ref-card" data-name="Custom Domain & DNS">
+                <div class="ref-icon"><i class="fas fa-globe"></i></div>
+                <div class="ref-info">
+                    <div class="ref-name">Custom Domain & DNS</div>
+                    <div class="ref-desc">Connects a website to its own web address.</div>
+                </div>
+            </div>
+
+            <div class="ref-card" data-name="Website → App">
+                <div class="ref-icon"><i class="fas fa-mobile-alt"></i></div>
+                <div class="ref-info">
+                    <div class="ref-name">Website → App</div>
+                    <div class="ref-desc">Turns a website into an app-like experience.</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- No results message -->
+        <div class="no-results" id="noResults">No matching tools found.</div>
+
+        <!-- Footer -->
+        <div class="footer">© 2026 SOLVATECH Student Tools</div>
+    </div>
+
+    <script>
+        (function() {
+            const SESSION_FLAG = 'solvatechToolsVerified';
+            const SESSION_TIME = 'solvatechToolsTime';
+            const SESSION_DURATION = 2 * 60 * 60 * 1000; // 2 hours
+
+            const loadingOverlay = document.getElementById('loadingOverlay');
+            const mainContent = document.getElementById('mainContent');
+            const searchBox = document.getElementById('searchBox');
+            const refCards = document.querySelectorAll('.ref-card');
+            const noResults = document.getElementById('noResults');
+
+            function isSessionValid() {
+                const flag = localStorage.getItem(SESSION_FLAG);
+                const time = parseInt(localStorage.getItem(SESSION_TIME) || '0');
+                return flag === 'true' && (Date.now() - time) < SESSION_DURATION;
+            }
+
+            function clearSession() {
+                localStorage.removeItem(SESSION_FLAG);
+                localStorage.removeItem(SESSION_TIME);
+            }
+
+            function showMainContent() {
+                loadingOverlay.classList.add('hidden');
+                mainContent.style.display = 'block';
+            }
+
+            function redirectToIndex() {
+                clearSession();
+                window.location.href = 'index.html';
+            }
+
+            // Filter function
+            function filterCards(query) {
+                const q = query.trim().toLowerCase();
+                let anyVisible = false;
+                refCards.forEach(card => {
+                    const name = card.getAttribute('data-name').toLowerCase();
+                    const desc = card.querySelector('.ref-desc').textContent.toLowerCase();
+                    if (name.includes(q) || desc.includes(q)) {
+                        card.style.display = 'flex';
+                        anyVisible = true;
+                    } else {
+                        card.style.display = 'none';
+                    }
+                });
+                noResults.style.display = anyVisible ? 'none' : 'block';
+            }
+
+            searchBox.addEventListener('input', function() {
+                filterCards(this.value);
+            });
+
+            // Initial session check
+            if (isSessionValid()) {
+                showMainContent();
+            } else {
+                setTimeout(redirectToIndex, 500);
+            }
+
+            // Periodic session check (every 60 seconds)
+            setInterval(function() {
+                if (!isSessionValid()) {
+                    redirectToIndex();
+                }
+            }, 60000);
+        })();
+    </script>
+</body>
+</html>

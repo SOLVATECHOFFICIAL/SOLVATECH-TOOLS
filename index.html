@@ -1,0 +1,960 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes" />
+    <title>SOLVATECH Student Tools</title>
+    <meta name="description" content="SOLVATECH Student Tools - Workspace for web development tools, image optimization, developer resources, and converters." />
+
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+    <!-- Google Fonts Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+
+    <style>
+        :root {
+            --primary: #1E88E5;
+            --primary-dark: #1565C0;
+            --primary-light: #e3f2fd;
+            --text-dark: #0B1A2E;
+            --text-muted: #5a6b7b;
+            --bg-page: #f4f7fc;
+            --card-bg: #ffffff;
+            --border-color: #e2e8f0;
+            --success: #10b981;
+            --radius-lg: 18px;
+            --radius-md: 12px;
+            --shadow-subtle: 0 4px 14px rgba(11, 26, 46, 0.04);
+            --shadow-hover: 0 14px 28px rgba(30, 136, 229, 0.12);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            background: var(--bg-page);
+            color: var(--text-dark);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+            padding: 1.5rem 1rem 3rem;
+            -webkit-font-smoothing: antialiased;
+            overflow-x: hidden;
+        }
+
+        a { text-decoration: none; color: inherit; }
+
+        .gateway-container {
+            width: 100%;
+            max-width: 520px;
+            margin: 0 auto;
+            transition: max-width 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .gateway-container.unlocked-mode {
+            max-width: 980px;
+        }
+
+        /* Branding */
+        .brand {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.6rem;
+            margin-bottom: 1rem;
+            margin-top: 0.5rem;
+            animation: fadeInDown 0.6s ease;
+        }
+        .brand-logo {
+            font-size: 2.4rem;
+            color: var(--primary);
+            filter: drop-shadow(0 4px 10px rgba(30, 136, 229, 0.25));
+            transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+        .brand:hover .brand-logo {
+            transform: rotate(10deg) scale(1.08);
+        }
+        .brand-text {
+            font-size: 1.9rem;
+            font-weight: 800;
+            color: var(--text-dark);
+            letter-spacing: -0.5px;
+        }
+        .brand-text span { color: var(--primary); }
+
+        /* Hero */
+        .hero {
+            text-align: center;
+            margin-bottom: 1.8rem;
+            animation: fadeIn 0.6s ease 0.1s both;
+        }
+        .hero h1 {
+            font-size: 2.1rem;
+            font-weight: 900;
+            color: var(--text-dark);
+            line-height: 1.2;
+            letter-spacing: -0.5px;
+        }
+        .hero h1 span {
+            color: var(--primary);
+            position: relative;
+            display: inline-block;
+        }
+        .hero p {
+            font-size: 1rem;
+            color: var(--text-muted);
+            margin-top: 0.4rem;
+            max-width: 520px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        /* Access Section */
+        .access-section {
+            background: var(--card-bg);
+            border-radius: 20px;
+            padding: 1.8rem;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+            margin-bottom: 1.5rem;
+            border: 1px solid var(--border-color);
+            animation: scaleIn 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .access-header {
+            text-align: center;
+            margin-bottom: 1.2rem;
+        }
+        .access-header h2 {
+            font-size: 1rem;
+            font-weight: 700;
+            color: var(--text-dark);
+            letter-spacing: 0.8px;
+            text-transform: uppercase;
+        }
+        .access-form {
+            display: flex;
+            flex-direction: column;
+            gap: 0.8rem;
+        }
+        .key-input-wrapper {
+            position: relative;
+            flex: 1;
+        }
+        .key-input {
+            width: 100%;
+            padding: 0.9rem 1rem;
+            font-size: 1.2rem;
+            font-weight: 700;
+            text-align: center;
+            letter-spacing: 4px;
+            border: 2px solid #d0d7de;
+            border-radius: var(--radius-md);
+            outline: none;
+            transition: all 0.2s ease;
+            color: var(--text-dark);
+            background: #fafbfc;
+            text-transform: uppercase;
+        }
+        .key-input:focus {
+            border-color: var(--primary);
+            background: #fff;
+            box-shadow: 0 0 0 4px rgba(30, 136, 229, 0.15);
+        }
+        .key-input::placeholder {
+            letter-spacing: 2px;
+            color: #aaa;
+            font-weight: 500;
+            text-transform: none;
+        }
+        .submit-btn {
+            padding: 0.9rem 1.6rem;
+            background: var(--primary);
+            color: #fff;
+            border: none;
+            border-radius: var(--radius-md);
+            font-size: 1rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            box-shadow: 0 4px 12px rgba(30, 136, 229, 0.25);
+        }
+        .submit-btn:hover {
+            background: var(--primary-dark);
+            transform: translateY(-1px);
+            box-shadow: 0 6px 16px rgba(30, 136, 229, 0.35);
+        }
+        .submit-btn:active {
+            transform: scale(0.98);
+        }
+        .submit-btn:disabled {
+            background: #a0c4e8;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+        .spinner {
+            display: inline-block;
+            width: 18px;
+            height: 18px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-top-color: #fff;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        .status-message {
+            text-align: center;
+            font-size: 0.88rem;
+            padding: 0.75rem 1rem;
+            border-radius: 10px;
+            margin-top: 0.7rem;
+            display: none;
+            font-weight: 600;
+            animation: fadeIn 0.3s ease;
+        }
+        .status-message.error { background: #fdecea; color: #d93025; display: block; border: 1px solid #f9d2ce; }
+        .status-message.pending { background: #fff8e1; color: #b76e00; display: block; border: 1px solid #ffe8a1; }
+        .status-message.disabled { background: #fce8e6; color: #d93025; display: block; border: 1px solid #f8c9c4; }
+        .status-message.success { background: #e6f4ea; color: #1e8e3e; display: block; border: 1px solid #b7e1cd; }
+
+        /* Session Active Header */
+        .session-bar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: #ffffff;
+            border: 1px solid var(--border-color);
+            padding: 0.75rem 1.25rem;
+            border-radius: 50px;
+            margin-bottom: 1.5rem;
+            box-shadow: var(--shadow-subtle);
+            flex-wrap: wrap;
+            gap: 0.6rem;
+            animation: fadeInDown 0.4s ease;
+        }
+        .session-left {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.88rem;
+            font-weight: 700;
+            color: #1e8e3e;
+        }
+        .status-dot {
+            width: 10px;
+            height: 10px;
+            background: #10b981;
+            border-radius: 50%;
+            display: inline-block;
+            box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.2);
+            animation: pulseDot 2s infinite;
+        }
+        @keyframes pulseDot {
+            0%, 100% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.2); opacity: 0.8; }
+        }
+        .session-right {
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+        }
+        .btn-lock {
+            background: transparent;
+            border: 1px solid #d0d7de;
+            border-radius: 20px;
+            padding: 0.35rem 0.8rem;
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.35rem;
+        }
+        .btn-lock:hover {
+            border-color: #ef4444;
+            color: #ef4444;
+            background: #fef2f2;
+        }
+
+        /* Tools Section */
+        .tools-section {
+            width: 100%;
+            animation: fadeIn 0.4s ease;
+        }
+        .tools-filter-bar {
+            display: flex;
+            gap: 0.8rem;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            flex-wrap: wrap;
+        }
+        .search-tools {
+            flex: 1;
+            min-width: 220px;
+            position: relative;
+        }
+        .search-tools input {
+            width: 100%;
+            padding: 0.75rem 1rem 0.75rem 2.4rem;
+            border-radius: 12px;
+            border: 1px solid var(--border-color);
+            background: #fff;
+            font-size: 0.9rem;
+            outline: none;
+            transition: all 0.2s ease;
+        }
+        .search-tools input:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(30, 136, 229, 0.12);
+        }
+        .search-tools i {
+            position: absolute;
+            left: 0.85rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #94a3b8;
+            font-size: 0.9rem;
+        }
+        .tool-badge-pill {
+            font-size: 0.78rem;
+            background: #eef2f6;
+            color: var(--text-dark);
+            padding: 0.4rem 0.8rem;
+            border-radius: 20px;
+            font-weight: 600;
+            white-space: nowrap;
+        }
+
+        /* Tools Grid */
+        .tools-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 1.2rem;
+            margin-bottom: 2rem;
+        }
+        @media (min-width: 680px) {
+            .tools-grid { grid-template-columns: repeat(2, 1fr); }
+        }
+        @media (min-width: 960px) {
+            .tools-grid { grid-template-columns: repeat(2, 1fr); }
+        }
+
+        .tool-card {
+            background: var(--card-bg);
+            border-radius: var(--radius-lg);
+            padding: 1.6rem;
+            box-shadow: var(--shadow-subtle);
+            border: 1px solid var(--border-color);
+            transition: all 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+            text-align: left;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+        .tool-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; height: 4px;
+            background: transparent;
+            transition: background 0.25s ease;
+        }
+        .tool-card:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-hover);
+            border-color: #bcd8fb;
+        }
+        .tool-card:hover::before {
+            background: linear-gradient(90deg, #1E88E5, #64B5F6);
+        }
+        .tool-header {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            margin-bottom: 1rem;
+        }
+        .tool-icon-wrap {
+            width: 52px;
+            height: 52px;
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.6rem;
+            transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+        .tool-card:hover .tool-icon-wrap {
+            transform: scale(1.1) rotate(4deg);
+        }
+        .icon-compress { background: #e0f2fe; color: #0284c7; }
+        .icon-convert { background: #fef3c7; color: #d97706; }
+        .icon-stack { background: #ede9fe; color: #7c3aed; }
+        .icon-tools { background: #dcfce7; color: #16a34a; }
+
+        .tool-tag {
+            font-size: 0.72rem;
+            font-weight: 700;
+            padding: 0.25rem 0.6rem;
+            border-radius: 20px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .tag-hot { background: #fef2f2; color: #ef4444; }
+        .tag-new { background: #ecfdf5; color: #059669; }
+        .tag-resource { background: #f5f3ff; color: #6d28d9; }
+        .tag-guide { background: #f0fdf4; color: #15803d; }
+
+        .tool-content h3 {
+            font-size: 1.25rem;
+            font-weight: 800;
+            color: var(--text-dark);
+            margin-bottom: 0.4rem;
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+        }
+        .tool-content p {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            line-height: 1.45;
+            margin-bottom: 1.2rem;
+        }
+        .tool-features {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.4rem;
+            margin-bottom: 1.2rem;
+        }
+        .tool-feature-badge {
+            font-size: 0.75rem;
+            background: #f1f5f9;
+            color: #475569;
+            padding: 0.2rem 0.5rem;
+            border-radius: 6px;
+            font-weight: 500;
+        }
+        .tool-action {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            color: var(--primary);
+            font-weight: 700;
+            font-size: 0.9rem;
+            transition: gap 0.2s ease;
+        }
+        .tool-card:hover .tool-action {
+            gap: 0.7rem;
+            color: var(--primary-dark);
+        }
+
+        /* Discussion & Suggestions Section */
+        .suggestions-banner {
+            background: linear-gradient(135deg, #0B1A2E 0%, #1e3a5f 100%);
+            color: #ffffff;
+            border-radius: var(--radius-lg);
+            padding: 1.8rem;
+            margin-bottom: 2rem;
+            display: flex;
+            flex-direction: column;
+            gap: 1.2rem;
+            box-shadow: 0 10px 25px rgba(11, 26, 46, 0.15);
+            position: relative;
+            overflow: hidden;
+        }
+        .suggestions-banner::after {
+            content: '';
+            position: absolute;
+            right: -20px;
+            bottom: -20px;
+            width: 140px;
+            height: 140px;
+            background: radial-gradient(circle, rgba(30, 136, 229, 0.3) 0%, transparent 70%);
+            pointer-events: none;
+        }
+        .suggestions-content h2 {
+            font-size: 1.3rem;
+            font-weight: 800;
+            margin-bottom: 0.4rem;
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+        }
+        .suggestions-content p {
+            font-size: 0.92rem;
+            color: #cbd5e1;
+            line-height: 1.5;
+        }
+        .proposed-tools-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 0.8rem;
+            margin-top: 0.4rem;
+        }
+        .proposed-card {
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            backdrop-filter: blur(8px);
+            border-radius: 12px;
+            padding: 0.9rem;
+            transition: all 0.2s ease;
+        }
+        .proposed-card:hover {
+            background: rgba(255, 255, 255, 0.14);
+            transform: translateY(-2px);
+        }
+        .proposed-title {
+            font-weight: 700;
+            font-size: 0.95rem;
+            margin-bottom: 0.2rem;
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+            color: #93c5fd;
+        }
+        .proposed-desc {
+            font-size: 0.78rem;
+            color: #94a3b8;
+            line-height: 1.3;
+        }
+
+        /* Toast */
+        .toast {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: #0B1A2E;
+            color: #fff;
+            padding: 0.8rem 1.4rem;
+            border-radius: 12px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+            z-index: 10000;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+            pointer-events: none;
+        }
+        .toast.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* Animations */
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        @keyframes fadeInDown { from { opacity: 0; transform: translateY(-12px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes scaleIn { from { opacity: 0; transform: scale(0.96); } to { opacity: 1; transform: scale(1); } }
+
+        @media (min-width: 600px) {
+            .access-form { flex-direction: row; align-items: center; }
+            .key-input-wrapper { flex: 1; }
+            .submit-btn { width: auto; }
+        }
+    </style>
+</head>
+<body>
+    <div class="gateway-container" id="gatewayContainer">
+        <div class="brand">
+            <i class="fas fa-cube brand-logo"></i>
+            <div class="brand-text">SOLVA<span>TECH</span></div>
+        </div>
+
+        <div class="hero">
+            <h1>STUDENT <span>TOOLKIT</span></h1>
+            <p>High-performance web utilities, converters, asset compressors, and developer stacks for SOLVATECH students.</p>
+        </div>
+
+        <!-- Access Key Verification Form (only shown if not verified) -->
+        <div class="access-section" id="accessSection">
+            <div class="access-header">
+                <h2>ENTER YOUR SOLVATECH ACCESS KEY</h2>
+            </div>
+            <form id="accessForm" class="access-form">
+                <div class="key-input-wrapper">
+                    <input
+                        type="text"
+                        id="accessKeyInput"
+                        class="key-input"
+                        placeholder="7-CHAR KEY"
+                        maxlength="7"
+                        inputmode="text"
+                        autocomplete="off"
+                        autocapitalize="characters"
+                        spellcheck="false"
+                        required
+                    />
+                </div>
+                <button type="submit" id="submitBtn" class="submit-btn">
+                    <span id="btnText">Verify & Unlock</span>
+                    <i class="fas fa-arrow-right"></i>
+                </button>
+            </form>
+            <div id="statusMessage" class="status-message"></div>
+        </div>
+
+        <!-- Unlocked Tools Dashboard -->
+        <div class="tools-section" id="toolsSection" style="display: none;">
+            <div class="session-bar">
+                <div class="session-left">
+                    <span class="status-dot"></span>
+                    <span>SOLVATECH ACCESS ACTIVE</span>
+                </div>
+                <div class="session-right">
+                    <button id="lockBtn" class="btn-lock" title="Lock access or change key">
+                        <i class="fas fa-lock"></i> Switch Key / Lock
+                    </button>
+                </div>
+            </div>
+
+            <div class="tools-filter-bar">
+                <div class="search-tools">
+                    <i class="fas fa-search"></i>
+                    <input type="text" id="toolSearch" placeholder="Search tools and references..." autocomplete="off" />
+                </div>
+                <div class="tool-badge-pill">
+                    <i class="fas fa-layer-group"></i> 4 Tools Available
+                </div>
+            </div>
+
+            <div class="tools-grid" id="toolsGrid">
+                <!-- Tool 1: SOLVA-Compress -->
+                <a href="solvacompress.html" class="tool-card" data-tool="compress image optimizer png jpg webp resize">
+                    <div class="tool-header">
+                        <div class="tool-icon-wrap icon-compress">
+                            <i class="fas fa-image"></i>
+                        </div>
+                        <span class="tool-tag tag-hot">Upgraded</span>
+                    </div>
+                    <div class="tool-content">
+                        <h3>SOLVA-Compress <i class="fas fa-sparkles" style="font-size: 0.9rem; color: #0284c7;"></i></h3>
+                        <p>Smart browser-based image compression. Keep original filenames or add customizable suffixes, choose WebP/JPG/PNG formats, and compare visual before/after.</p>
+                        <div class="tool-features">
+                            <span class="tool-feature-badge"><i class="fas fa-check"></i> Custom Naming</span>
+                            <span class="tool-feature-badge"><i class="fas fa-check"></i> Batch ZIP</span>
+                            <span class="tool-feature-badge"><i class="fas fa-check"></i> Before/After Preview</span>
+                        </div>
+                    </div>
+                    <div class="tool-action">
+                        <span>Launch Compressor</span>
+                        <i class="fas fa-arrow-right"></i>
+                    </div>
+                </a>
+
+                <!-- Tool 2: SOLVA-Convert (NEW!) -->
+                <a href="solvaconvert.html" class="tool-card" data-tool="convert units px rem color hex rgb hsl base64 json formatter contrast wcag">
+                    <div class="tool-header">
+                        <div class="tool-icon-wrap icon-convert">
+                            <i class="fas fa-calculator"></i>
+                        </div>
+                        <span class="tool-tag tag-new">New Utility</span>
+                    </div>
+                    <div class="tool-content">
+                        <h3>SOLVA-Convert <i class="fas fa-bolt" style="font-size: 0.9rem; color: #d97706;"></i></h3>
+                        <p>Student developer swiss-army knife: PX to REM/EM converter, live Hex/RGB/HSL color tool with WCAG contrast checker, Base64 encoder, and JSON beautifier.</p>
+                        <div class="tool-features">
+                            <span class="tool-feature-badge"><i class="fas fa-check"></i> PX to REM</span>
+                            <span class="tool-feature-badge"><i class="fas fa-check"></i> WCAG Contrast</span>
+                            <span class="tool-feature-badge"><i class="fas fa-check"></i> JSON Validator</span>
+                        </div>
+                    </div>
+                    <div class="tool-action">
+                        <span>Open Converter Suite</span>
+                        <i class="fas fa-arrow-right"></i>
+                    </div>
+                </a>
+
+                <!-- Tool 3: SOLVA-Stack -->
+                <a href="solvastack.html" class="tool-card" data-tool="stack resources libraries hosting fonts icons frameworks dev">
+                    <div class="tool-header">
+                        <div class="tool-icon-wrap icon-stack">
+                            <i class="fas fa-cubes"></i>
+                        </div>
+                        <span class="tool-tag tag-resource">Resources</span>
+                    </div>
+                    <div class="tool-content">
+                        <h3>SOLVA-Stack</h3>
+                        <p>Curated resource hub for useful developer tools, deployment platforms, UI libraries, free hosting, and essential student APIs.</p>
+                        <div class="tool-features">
+                            <span class="tool-feature-badge">Hosting</span>
+                            <span class="tool-feature-badge">Free APIs</span>
+                            <span class="tool-feature-badge">Libraries</span>
+                        </div>
+                    </div>
+                    <div class="tool-action">
+                        <span>Explore Tech Stack</span>
+                        <i class="fas fa-arrow-right"></i>
+                    </div>
+                </a>
+
+                <!-- Tool 4: SOLVA-Tools -->
+                <a href="solvatools.html" class="tool-card" data-tool="tools guide reference cheat sheet git terminal docker node react">
+                    <div class="tool-header">
+                        <div class="tool-icon-wrap icon-tools">
+                            <i class="fas fa-screwdriver-wrench"></i>
+                        </div>
+                        <span class="tool-tag tag-guide">Reference</span>
+                    </div>
+                    <div class="tool-content">
+                        <h3>SOLVA-Tools</h3>
+                        <p>Quick reference cheat-sheet and memory guide for web technologies, explaining what each tool does and when to use it.</p>
+                        <div class="tool-features">
+                            <span class="tool-feature-badge">Git & CLI</span>
+                            <span class="tool-feature-badge">Frameworks</span>
+                            <span class="tool-feature-badge">Build Tools</span>
+                        </div>
+                    </div>
+                    <div class="tool-action">
+                        <span>View Cheat Sheets</span>
+                        <i class="fas fa-arrow-right"></i>
+                    </div>
+                </a>
+            </div>
+
+            <!-- Future Tools & Discussion Section -->
+            <div class="suggestions-banner">
+                <div class="suggestions-content">
+                    <h2><i class="fas fa-lightbulb" style="color: #fbbf24;"></i> Upcoming Tools Roadmap</h2>
+                    <p>We are continuously expanding the SOLVATECH toolkit! Here are candidate tools being considered for upcoming student releases:</p>
+                    <div class="proposed-tools-grid">
+                        <div class="proposed-card">
+                            <div class="proposed-title"><i class="fas fa-code"></i> SOLVA-CodeSnap</div>
+                            <div class="proposed-desc">Export beautiful syntax-highlighted code cards for project portfolios and presentations.</div>
+                        </div>
+                        <div class="proposed-card">
+                            <div class="proposed-title"><i class="fas fa-tags"></i> SOLVA-Meta & SEO</div>
+                            <div class="proposed-desc">Generate OpenGraph tags, social preview cards, and search metadata for student websites.</div>
+                        </div>
+                        <div class="proposed-card">
+                            <div class="proposed-title"><i class="fas fa-asterisk"></i> SOLVA-Regex Playground</div>
+                            <div class="proposed-desc">Interactive regex tester with pre-built patterns for email, telephone, URL, and security validation.</div>
+                        </div>
+                        <div class="proposed-card">
+                            <div class="proposed-title"><i class="fas fa-file-lines"></i> SOLVA-Markdown Docs</div>
+                            <div class="proposed-desc">Live README editor with instant HTML export and GitHub-compatible badge templates.</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div style="text-align: center; margin-top: 1.5rem; font-size: 0.75rem; color: #888;">
+            SOLVATECH Student Tools &bull; Secure Access &bull; v2.0
+        </div>
+    </div>
+
+    <div class="toast" id="toastMessage">
+        <i class="fas fa-check-circle" style="color: #10b981;"></i>
+        <span id="toastText">Action completed</span>
+    </div>
+
+    <script>
+        // Firebase configuration (direct)
+        const firebaseConfig = {
+            apiKey: "AIzaSyBl0rplCgVmTyTsQQ2-yhp-aNdkWpoGXks",
+            authDomain: "solvatech-academy.firebaseapp.com",
+            databaseURL: "https://solvatech-academy-default-rtdb.europe-west1.firebasedatabase.app",
+            projectId: "solvatech-academy",
+            storageBucket: "solvatech-academy.firebasestorage.app",
+            messagingSenderId: "102061431394",
+            appId: "1:102061431394:web:78b21e5f9878b3c85f4f3b"
+        };
+
+        firebase.initializeApp(firebaseConfig);
+        const database = firebase.database();
+
+        // DOM elements
+        const accessForm = document.getElementById('accessForm');
+        const accessKeyInput = document.getElementById('accessKeyInput');
+        const submitBtn = document.getElementById('submitBtn');
+        const btnText = document.getElementById('btnText');
+        const statusMessage = document.getElementById('statusMessage');
+        const accessSection = document.getElementById('accessSection');
+        const toolsSection = document.getElementById('toolsSection');
+        const gatewayContainer = document.getElementById('gatewayContainer');
+        const lockBtn = document.getElementById('lockBtn');
+        const toolSearch = document.getElementById('toolSearch');
+        const toastMessage = document.getElementById('toastMessage');
+        const toastText = document.getElementById('toastText');
+
+        // Session management (unified 2-hour session that persists across back-and-forth tool visits)
+        const SESSION_FLAG = 'solvatechToolsVerified';
+        const SESSION_TIME = 'solvatechToolsTime';
+        const SESSION_DURATION = 2 * 60 * 60 * 1000; // 2 hours
+
+        function isSessionValid() {
+            const flag = localStorage.getItem(SESSION_FLAG);
+            const time = parseInt(localStorage.getItem(SESSION_TIME) || '0');
+            return flag === 'true' && (Date.now() - time) < SESSION_DURATION;
+        }
+
+        function setSessionVerified() {
+            localStorage.setItem(SESSION_FLAG, 'true');
+            localStorage.setItem(SESSION_TIME, Date.now().toString());
+        }
+
+        function clearSession() {
+            localStorage.removeItem(SESSION_FLAG);
+            localStorage.removeItem(SESSION_TIME);
+        }
+
+        function showToast(msg) {
+            toastText.textContent = msg;
+            toastMessage.classList.add('show');
+            setTimeout(() => toastMessage.classList.remove('show'), 2500);
+        }
+
+        function showStatus(message, type) {
+            statusMessage.className = 'status-message ' + type;
+            statusMessage.textContent = message;
+        }
+        function hideStatus() {
+            statusMessage.className = 'status-message';
+            statusMessage.textContent = '';
+        }
+        function setLoading(isLoading) {
+            if (isLoading) {
+                submitBtn.disabled = true;
+                btnText.innerHTML = '<span class="spinner"></span> Checking...';
+            } else {
+                submitBtn.disabled = false;
+                btnText.textContent = 'Verify & Unlock';
+            }
+        }
+
+        function unlockTools(animate = true) {
+            accessSection.style.display = 'none';
+            toolsSection.style.display = 'block';
+            gatewayContainer.classList.add('unlocked-mode');
+            if (animate) {
+                toolsSection.style.animation = 'fadeIn 0.4s ease';
+            }
+        }
+
+        function lockTools() {
+            toolsSection.style.display = 'none';
+            accessSection.style.display = 'block';
+            gatewayContainer.classList.remove('unlocked-mode');
+            accessKeyInput.value = '';
+            accessKeyInput.focus();
+        }
+
+        // Lock / Switch Key button
+        if (lockBtn) {
+            lockBtn.addEventListener('click', () => {
+                clearSession();
+                lockTools();
+                showStatus('Access key cleared. Enter a key to unlock tools.', 'pending');
+                showToast('Access locked');
+            });
+        }
+
+        // Live tool search
+        if (toolSearch) {
+            toolSearch.addEventListener('input', (e) => {
+                const term = e.target.value.toLowerCase().trim();
+                const cards = document.querySelectorAll('#toolsGrid .tool-card');
+                cards.forEach(card => {
+                    const data = (card.getAttribute('data-tool') || '') + ' ' + card.innerText.toLowerCase();
+                    if (!term || data.includes(term)) {
+                        card.style.display = 'flex';
+                    } else {
+                        card.style.display = 'none';
+                    }
+                });
+            });
+        }
+
+        // Firebase access key check
+        async function checkAccessKey(key) {
+            const normalizedKey = key.toUpperCase().trim();
+            const snapshot = await database.ref('accessKeys').once('value');
+            const allKeys = snapshot.val() || {};
+            let found = null;
+
+            for (const uid in allKeys) {
+                const storedKey = allKeys[uid].key;
+                if (storedKey && storedKey.toUpperCase() === normalizedKey) {
+                    found = allKeys[uid];
+                    break;
+                }
+            }
+
+            if (!found) return { status: 'invalid' };
+
+            if (found.enabled === false || found.enabled === 'false') {
+                return { status: 'disabled' };
+            }
+
+            if (found.enabled === true || found.enabled === 'true') {
+                return { status: 'approved' };
+            }
+
+            return { status: 'pending' };
+        }
+
+        accessForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const key = accessKeyInput.value.trim();
+            const keyRegex = /^[A-Za-z0-9]{7}$/;
+            if (!keyRegex.test(key)) {
+                showStatus('Please enter exactly 7 alphanumeric characters.', 'error');
+                accessKeyInput.focus();
+                return;
+            }
+            setLoading(true);
+            hideStatus();
+            try {
+                const result = await checkAccessKey(key);
+                switch (result.status) {
+                    case 'approved':
+                        showStatus('Access Granted! Unlocking tools...', 'success');
+                        setSessionVerified();
+                        showToast('Access verified successfully');
+                        setTimeout(() => unlockTools(true), 600);
+                        break;
+                    case 'pending':
+                        showStatus('Access Pending: Your SOLVATECH account has not yet been approved for tool access.', 'pending');
+                        break;
+                    case 'disabled':
+                        showStatus('Your access key is currently disabled. Please contact support.', 'disabled');
+                        break;
+                    case 'invalid':
+                    default:
+                        showStatus('Invalid SOLVATECH Access Key', 'error');
+                }
+            } catch (error) {
+                showStatus('Error verifying access. Please try again.', 'error');
+            } finally {
+                setLoading(false);
+            }
+        });
+
+        // CRITICAL FIX: When user returns to index.html from a tool (e.g. solvacompress),
+        // check if session is already valid! Do NOT wipe the session on page load!
+        document.addEventListener('DOMContentLoaded', () => {
+            if (isSessionValid()) {
+                unlockTools(false);
+            } else {
+                lockTools();
+            }
+        });
+    </script>
+</body>
+</html>

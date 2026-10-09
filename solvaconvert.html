@@ -1,0 +1,757 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes" />
+    <title>SOLVA-Convert – SOLVATECH Student Tools</title>
+    <meta name="description" content="SOLVA-Convert: Developer utilities for CSS unit conversion, color accessibility contrast checks, Base64 encoding, and JSON formatting." />
+
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+    <!-- Google Fonts Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
+
+    <style>
+        :root {
+            --primary: #1E88E5;
+            --primary-dark: #1565C0;
+            --text-dark: #0B1A2E;
+            --text-muted: #5a6b7b;
+            --bg-page: #f4f7fc;
+            --card-bg: #ffffff;
+            --border-color: #e2e8f0;
+            --radius-lg: 18px;
+            --radius-md: 12px;
+            --shadow-subtle: 0 4px 14px rgba(11, 26, 46, 0.05);
+            --shadow-hover: 0 10px 24px rgba(11, 26, 46, 0.08);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            background: var(--bg-page);
+            color: var(--text-dark);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+            padding: 1rem 1rem 3rem;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        a { text-decoration: none; color: inherit; }
+        .container { width: 100%; max-width: 860px; margin: 0 auto; }
+
+        /* Loading */
+        .loading-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: var(--bg-page); display: flex; flex-direction: column; align-items: center; justify-content: center;
+            z-index: 9999; transition: opacity 0.4s ease;
+        }
+        .loading-overlay.hidden { opacity: 0; pointer-events: none; }
+        .loading-spinner {
+            width: 48px; height: 48px; border: 4px solid #d0d7de; border-top-color: var(--primary);
+            border-radius: 50%; animation: spin 0.8s linear infinite; margin-bottom: 1rem;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        .loading-overlay p { color: var(--text-muted); font-weight: 600; font-size: 0.95rem; }
+
+        /* Branding */
+        .brand {
+            display: flex; align-items: center; justify-content: center; gap: 0.5rem;
+            margin-bottom: 1.2rem; margin-top: 0.5rem;
+        }
+        .brand-logo { font-size: 2.2rem; color: var(--primary); }
+        .brand-text { font-size: 1.7rem; font-weight: 800; color: var(--text-dark); letter-spacing: -0.5px; }
+        .brand-text span { color: var(--primary); }
+
+        /* Top Nav */
+        .top-nav {
+            display: flex; align-items: center; justify-content: space-between;
+            margin-bottom: 1.5rem; flex-wrap: wrap; gap: 0.8rem;
+        }
+        .back-btn {
+            display: inline-flex; align-items: center; gap: 0.5rem;
+            font-weight: 700; color: var(--primary); font-size: 0.92rem;
+            background: #fff; padding: 0.5rem 1rem; border-radius: 20px;
+            border: 1px solid var(--border-color); box-shadow: var(--shadow-subtle);
+            transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .back-btn:hover { color: var(--primary-dark); transform: translateX(-3px); border-color: var(--primary); }
+
+        .session-badge {
+            display: inline-flex; align-items: center; gap: 0.4rem;
+            font-size: 0.8rem; font-weight: 600; color: #16a34a;
+            background: #dcfce7; padding: 0.4rem 0.8rem; border-radius: 20px;
+        }
+        .session-dot { width: 8px; height: 8px; background: #16a34a; border-radius: 50%; }
+
+        /* Page Header */
+        .page-header { text-align: center; margin-bottom: 1.8rem; }
+        .page-header h1 { font-size: 2.1rem; font-weight: 900; color: var(--text-dark); letter-spacing: -0.5px; }
+        .page-header h1 span { color: #d97706; }
+        .page-header p { color: var(--text-muted); margin-top: 0.4rem; font-size: 1rem; }
+
+        /* Tabs */
+        .tool-tabs {
+            display: flex; gap: 0.5rem; margin-bottom: 1.5rem;
+            background: #fff; padding: 0.4rem; border-radius: 14px;
+            border: 1px solid var(--border-color); box-shadow: var(--shadow-subtle);
+            overflow-x: auto;
+        }
+        .tab-btn {
+            flex: 1; min-width: 130px; padding: 0.65rem 1rem;
+            background: transparent; border: none; border-radius: 10px;
+            font-size: 0.85rem; font-weight: 700; color: var(--text-muted);
+            cursor: pointer; transition: all 0.2s ease; display: flex;
+            align-items: center; justify-content: center; gap: 0.4rem;
+            white-space: nowrap;
+        }
+        .tab-btn:hover { color: var(--text-dark); background: #f8fafc; }
+        .tab-btn.active {
+            background: var(--primary); color: #fff; box-shadow: 0 4px 10px rgba(30,136,229,0.25);
+        }
+
+        /* Tab Content */
+        .tab-panel {
+            background: #fff; border-radius: var(--radius-lg); padding: 1.8rem;
+            border: 1px solid var(--border-color); box-shadow: var(--shadow-subtle);
+            display: none; animation: fadeIn 0.3s ease;
+        }
+        .tab-panel.active { display: block; }
+
+        .panel-title {
+            font-size: 1.25rem; font-weight: 800; color: var(--text-dark); margin-bottom: 0.4rem;
+            display: flex; align-items: center; gap: 0.5rem;
+        }
+        .panel-subtitle { font-size: 0.88rem; color: var(--text-muted); margin-bottom: 1.5rem; }
+
+        /* Forms & Inputs */
+        .field-group { margin-bottom: 1.2rem; }
+        .field-group label {
+            display: block; font-size: 0.8rem; font-weight: 700; color: var(--text-dark);
+            text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 0.4rem;
+        }
+        .input-row { display: flex; gap: 0.8rem; align-items: center; }
+        .form-input, .form-textarea {
+            width: 100%; padding: 0.75rem 1rem; border-radius: var(--radius-md);
+            border: 1px solid var(--border-color); background: #fafbfc;
+            font-size: 0.95rem; font-family: inherit; color: var(--text-dark); outline: none;
+            transition: all 0.2s ease;
+        }
+        .form-input:focus, .form-textarea:focus {
+            border-color: var(--primary); background: #fff;
+            box-shadow: 0 0 0 3px rgba(30,136,229,0.12);
+        }
+        .code-textarea {
+            font-family: 'Courier New', Courier, monospace; font-size: 0.88rem;
+            min-height: 140px; resize: vertical; line-height: 1.4;
+        }
+
+        /* Converter Grid */
+        .converter-grid {
+            display: grid; grid-template-columns: 1fr; gap: 1rem; margin-top: 1rem;
+        }
+        @media (min-width: 600px) {
+            .converter-grid { grid-template-columns: repeat(2, 1fr); }
+        }
+        .conversion-box {
+            background: #f8fafc; border: 1px solid var(--border-color);
+            border-radius: var(--radius-md); padding: 1rem; position: relative;
+        }
+        .box-label {
+            font-size: 0.75rem; font-weight: 700; color: var(--text-muted);
+            text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 0.4rem;
+        }
+        .box-val-row { display: flex; align-items: center; justify-content: space-between; }
+        .box-val { font-size: 1.3rem; font-weight: 800; color: var(--text-dark); }
+        .btn-copy {
+            background: #fff; border: 1px solid var(--border-color); border-radius: 8px;
+            padding: 0.4rem 0.7rem; font-size: 0.78rem; font-weight: 700; color: var(--text-muted);
+            cursor: pointer; transition: all 0.2s ease; display: inline-flex; align-items: center; gap: 0.35rem;
+        }
+        .btn-copy:hover { border-color: var(--primary); color: var(--primary); background: #f0f7ff; }
+
+        /* Color Preview */
+        .color-preview-box {
+            height: 90px; border-radius: 12px; margin-bottom: 1.2rem;
+            display: flex; align-items: center; justify-content: center;
+            font-weight: 800; font-size: 1.1rem; border: 1px solid var(--border-color);
+            transition: all 0.2s ease;
+        }
+        .contrast-matrix {
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+            gap: 0.6rem; margin-top: 1rem;
+        }
+        .contrast-card {
+            background: #f8fafc; border: 1px solid var(--border-color); border-radius: 10px;
+            padding: 0.8rem; text-align: center;
+        }
+        .contrast-score { font-size: 1.2rem; font-weight: 900; margin-bottom: 0.2rem; }
+        .contrast-badge {
+            display: inline-block; font-size: 0.72rem; font-weight: 700;
+            padding: 0.2rem 0.5rem; border-radius: 20px;
+        }
+        .badge-pass { background: #dcfce7; color: #15803d; }
+        .badge-fail { background: #fee2e2; color: #b91c1c; }
+
+        /* Action Buttons */
+        .btn-action {
+            background: var(--primary); color: #fff; border: none; border-radius: var(--radius-md);
+            padding: 0.75rem 1.4rem; font-weight: 700; font-size: 0.9rem; cursor: pointer;
+            transition: all 0.2s ease; display: inline-flex; align-items: center; gap: 0.5rem;
+        }
+        .btn-action:hover { background: var(--primary-dark); transform: translateY(-1px); }
+
+        /* Toast */
+        .toast {
+            position: fixed; bottom: 20px; right: 20px; background: #0B1A2E; color: #fff;
+            padding: 0.8rem 1.4rem; border-radius: 12px; font-weight: 600; font-size: 0.9rem;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2); display: flex; align-items: center; gap: 0.6rem;
+            z-index: 10001; opacity: 0; transform: translateY(20px); transition: all 0.3s ease;
+            pointer-events: none;
+        }
+        .toast.show { opacity: 1; transform: translateY(0); }
+
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+    </style>
+</head>
+<body>
+    <div class="loading-overlay" id="loadingOverlay">
+        <div class="loading-spinner"></div>
+        <p>Checking access...</p>
+    </div>
+
+    <div class="container" id="mainContent" style="display: none;">
+        <div class="brand">
+            <i class="fas fa-cube brand-logo"></i>
+            <div class="brand-text">SOLVA<span>TECH</span></div>
+        </div>
+
+        <div class="top-nav">
+            <a href="index.html" class="back-btn"><i class="fas fa-arrow-left"></i> Back to Student Tools</a>
+            <div class="session-badge">
+                <span class="session-dot"></span>
+                <span>Active Session</span>
+            </div>
+        </div>
+
+        <div class="page-header">
+            <h1>SOLVA-<span>Convert</span></h1>
+            <p>Developer toolkit for responsive CSS units, color contrast accessibility, Base64 data, and JSON formatters.</p>
+        </div>
+
+        <!-- Navigation Tabs -->
+        <div class="tool-tabs">
+            <button class="tab-btn active" data-tab="tabUnits"><i class="fas fa-ruler-combined"></i> CSS Units</button>
+            <button class="tab-btn" data-tab="tabColors"><i class="fas fa-palette"></i> Colors & Contrast</button>
+            <button class="tab-btn" data-tab="tabBase64"><i class="fas fa-file-code"></i> Base64 & DataURI</button>
+            <button class="tab-btn" data-tab="tabJson"><i class="fas fa-brackets-curly"></i> JSON Formatter</button>
+        </div>
+
+        <!-- TAB 1: CSS UNIT CONVERTER -->
+        <div class="tab-panel active" id="tabUnits">
+            <div class="panel-title"><i class="fas fa-ruler-combined" style="color: var(--primary);"></i> CSS Unit Calculator</div>
+            <div class="panel-subtitle">Convert pixel measurements to modern responsive units (REM, EM, VW, VH, %).</div>
+
+            <div style="display: flex; gap: 1rem; flex-wrap: wrap; margin-bottom: 1.2rem;">
+                <div style="flex: 1; min-width: 140px;">
+                    <label style="font-size: 0.75rem; font-weight: 700; text-transform: uppercase;">Pixel Value (px)</label>
+                    <input type="number" id="inputPx" class="form-input" value="24" min="0" step="1" />
+                </div>
+                <div style="flex: 1; min-width: 140px;">
+                    <label style="font-size: 0.75rem; font-weight: 700; text-transform: uppercase;">Root Base Size (px)</label>
+                    <input type="number" id="inputRootBase" class="form-input" value="16" min="8" max="32" step="1" />
+                </div>
+                <div style="flex: 1; min-width: 140px;">
+                    <label style="font-size: 0.75rem; font-weight: 700; text-transform: uppercase;">Viewport Width (px)</label>
+                    <input type="number" id="inputVpWidth" class="form-input" value="1440" min="320" step="10" />
+                </div>
+            </div>
+
+            <div class="converter-grid">
+                <div class="conversion-box">
+                    <div class="box-label">REM Unit</div>
+                    <div class="box-val-row">
+                        <div class="box-val" id="resRem">1.5 rem</div>
+                        <button class="btn-copy" data-target="resRem"><i class="fas fa-copy"></i> Copy</button>
+                    </div>
+                </div>
+
+                <div class="conversion-box">
+                    <div class="box-label">EM Unit</div>
+                    <div class="box-val-row">
+                        <div class="box-val" id="resEm">1.5 em</div>
+                        <button class="btn-copy" data-target="resEm"><i class="fas fa-copy"></i> Copy</button>
+                    </div>
+                </div>
+
+                <div class="conversion-box">
+                    <div class="box-label">Viewport Width (VW)</div>
+                    <div class="box-val-row">
+                        <div class="box-val" id="resVw">1.667 vw</div>
+                        <button class="btn-copy" data-target="resVw"><i class="fas fa-copy"></i> Copy</button>
+                    </div>
+                </div>
+
+                <div class="conversion-box">
+                    <div class="box-label">Percentage (%)</div>
+                    <div class="box-val-row">
+                        <div class="box-val" id="resPct">150 %</div>
+                        <button class="btn-copy" data-target="resPct"><i class="fas fa-copy"></i> Copy</button>
+                    </div>
+                </div>
+            </div>
+
+            <div style="margin-top: 1.5rem; background: #f8fafc; padding: 1rem; border-radius: 12px; border: 1px solid var(--border-color);">
+                <div style="font-size: 0.8rem; font-weight: 700; margin-bottom: 0.5rem; text-transform: uppercase;">Standard Font Scale Presets:</div>
+                <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+                    <button class="btn-copy btn-preset" data-px="12">12px (0.75rem)</button>
+                    <button class="btn-copy btn-preset" data-px="14">14px (0.875rem)</button>
+                    <button class="btn-copy btn-preset" data-px="16">16px (1rem)</button>
+                    <button class="btn-copy btn-preset" data-px="18">18px (1.125rem)</button>
+                    <button class="btn-copy btn-preset" data-px="20">20px (1.25rem)</button>
+                    <button class="btn-copy btn-preset" data-px="24">24px (1.5rem)</button>
+                    <button class="btn-copy btn-preset" data-px="32">32px (2rem)</button>
+                    <button class="btn-copy btn-preset" data-px="48">48px (3rem)</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- TAB 2: COLOR CONVERTER & CONTRAST -->
+        <div class="tab-panel" id="tabColors">
+            <div class="panel-title"><i class="fas fa-palette" style="color: #ec4899;"></i> Color Tools & WCAG Contrast</div>
+            <div class="panel-subtitle">Convert between HEX, RGB, and HSL while testing accessibility contrast for website text.</div>
+
+            <div style="display: grid; grid-template-columns: 1fr; gap: 1rem; margin-bottom: 1.2rem;">
+                <div style="display: flex; gap: 1rem; align-items: center; flex-wrap: wrap;">
+                    <div style="flex: 1; min-width: 160px;">
+                        <label style="font-size: 0.75rem; font-weight: 700; text-transform: uppercase;">Text Color (Foreground)</label>
+                        <div class="input-row">
+                            <input type="color" id="fgColorPicker" value="#0B1A2E" style="width: 44px; height: 44px; border: none; border-radius: 8px; cursor: pointer;" />
+                            <input type="text" id="fgColorInput" class="form-input" value="#0B1A2E" />
+                        </div>
+                    </div>
+                    <div style="flex: 1; min-width: 160px;">
+                        <label style="font-size: 0.75rem; font-weight: 700; text-transform: uppercase;">Background Color</label>
+                        <div class="input-row">
+                            <input type="color" id="bgColorPicker" value="#FFFFFF" style="width: 44px; height: 44px; border: none; border-radius: 8px; cursor: pointer;" />
+                            <input type="text" id="bgColorInput" class="form-input" value="#FFFFFF" />
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Live Color Preview -->
+            <div class="color-preview-box" id="contrastSampleBox" style="background-color: #FFFFFF; color: #0B1A2E;">
+                Sample Heading & Text Readability
+            </div>
+
+            <!-- WCAG Matrix -->
+            <div class="contrast-matrix">
+                <div class="contrast-card">
+                    <div class="box-label">Contrast Ratio</div>
+                    <div class="contrast-score" id="contrastRatioVal">15.2:1</div>
+                    <div class="box-label" style="font-size: 0.7rem;">Minimum 4.5:1</div>
+                </div>
+                <div class="contrast-card">
+                    <div class="box-label">WCAG AA Normal</div>
+                    <div class="contrast-score" id="aaNormalStatus"><span class="contrast-badge badge-pass">PASS</span></div>
+                    <div class="box-label" style="font-size: 0.7rem;">Body Text</div>
+                </div>
+                <div class="contrast-card">
+                    <div class="box-label">WCAG AA Large</div>
+                    <div class="contrast-score" id="aaLargeStatus"><span class="contrast-badge badge-pass">PASS</span></div>
+                    <div class="box-label" style="font-size: 0.7rem;">Headings (18pt+)</div>
+                </div>
+                <div class="contrast-card">
+                    <div class="box-label">WCAG AAA Enhanced</div>
+                    <div class="contrast-score" id="aaaStatus"><span class="contrast-badge badge-pass">PASS</span></div>
+                    <div class="box-label" style="font-size: 0.7rem;">High Contrast</div>
+                </div>
+            </div>
+
+            <!-- Color Representations -->
+            <div class="converter-grid" style="margin-top: 1.2rem;">
+                <div class="conversion-box">
+                    <div class="box-label">Foreground RGB</div>
+                    <div class="box-val-row">
+                        <div class="box-val" id="colorRgbVal" style="font-size: 1.1rem;">rgb(11, 26, 46)</div>
+                        <button class="btn-copy" data-target="colorRgbVal"><i class="fas fa-copy"></i> Copy</button>
+                    </div>
+                </div>
+                <div class="conversion-box">
+                    <div class="box-label">Foreground HSL</div>
+                    <div class="box-val-row">
+                        <div class="box-val" id="colorHslVal" style="font-size: 1.1rem;">hsl(214, 61%, 11%)</div>
+                        <button class="btn-copy" data-target="colorHslVal"><i class="fas fa-copy"></i> Copy</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- TAB 3: BASE64 & DATA URI -->
+        <div class="tab-panel" id="tabBase64">
+            <div class="panel-title"><i class="fas fa-file-code" style="color: #7c3aed;"></i> Base64 Text & Image Encoder</div>
+            <div class="panel-subtitle">Encode text, SVGs, and images into Base64 or Data-URIs for direct inline embedding.</div>
+
+            <div class="field-group">
+                <label>Plain Text / SVG String</label>
+                <textarea id="base64TextInput" class="form-textarea code-textarea" placeholder="Paste text or SVG code here..."></textarea>
+            </div>
+
+            <div style="display: flex; gap: 0.8rem; margin-bottom: 1.5rem; flex-wrap: wrap;">
+                <button class="btn-action" id="btnEncodeBase64"><i class="fas fa-arrow-down"></i> Encode to Base64</button>
+                <button class="btn-action" id="btnDecodeBase64" style="background: #475569;"><i class="fas fa-arrow-up"></i> Decode to Text</button>
+            </div>
+
+            <div class="field-group">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.4rem;">
+                    <label style="margin: 0;">Base64 Output</label>
+                    <button class="btn-copy" id="btnCopyBase64"><i class="fas fa-copy"></i> Copy Result</button>
+                </div>
+                <textarea id="base64Output" class="form-textarea code-textarea" readonly placeholder="Encoded string will appear here..."></textarea>
+            </div>
+        </div>
+
+        <!-- TAB 4: JSON FORMATTER & VALIDATOR -->
+        <div class="tab-panel" id="tabJson">
+            <div class="panel-title"><i class="fas fa-brackets-curly" style="color: #059669;"></i> JSON Beautifier & Validator</div>
+            <div class="panel-subtitle">Format, validate, and minify API response payloads for frontend assignments.</div>
+
+            <div class="field-group">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.4rem;">
+                    <label style="margin: 0;">Input JSON</label>
+                    <button class="btn-copy" id="btnLoadSampleJson"><i class="fas fa-magic"></i> Load Student Sample</button>
+                </div>
+                <textarea id="jsonInput" class="form-textarea code-textarea" placeholder="Paste raw JSON here..."></textarea>
+            </div>
+
+            <div style="display: flex; gap: 0.8rem; margin-bottom: 1.2rem; flex-wrap: wrap;">
+                <button class="btn-action" id="btnBeautifyJson"><i class="fas fa-align-left"></i> Beautify (2 Spaces)</button>
+                <button class="btn-action" id="btnMinifyJson" style="background: #475569;"><i class="fas fa-compress-alt"></i> Minify JSON</button>
+                <button class="btn-copy" id="btnCopyJson"><i class="fas fa-copy"></i> Copy Output</button>
+            </div>
+
+            <div id="jsonStatus" style="display: none; padding: 0.7rem 1rem; border-radius: 8px; font-size: 0.88rem; font-weight: 600; margin-bottom: 1rem;"></div>
+        </div>
+
+        <p style="text-align: center; font-size: 0.75rem; color: #888; margin-top: 1.5rem;">
+            SOLVATECH Student Tools &bull; Developer Utilities
+        </p>
+    </div>
+
+    <!-- Toast Notification -->
+    <div class="toast" id="toastMessage">
+        <i class="fas fa-check-circle" style="color: #10b981;"></i>
+        <span id="toastText">Copied to clipboard</span>
+    </div>
+
+    <script>
+        (function() {
+            // Verify session without clearing it
+            const SESSION_FLAG = 'solvatechToolsVerified';
+            const SESSION_TIME = 'solvatechToolsTime';
+            const SESSION_DURATION = 2 * 60 * 60 * 1000;
+
+            function isSessionValid() {
+                const flag = localStorage.getItem(SESSION_FLAG);
+                const time = parseInt(localStorage.getItem(SESSION_TIME) || '0');
+                return flag === 'true' && (Date.now() - time) < SESSION_DURATION;
+            }
+
+            if (!isSessionValid()) {
+                setTimeout(() => {
+                    localStorage.removeItem(SESSION_FLAG);
+                    localStorage.removeItem(SESSION_TIME);
+                    window.location.href = 'index.html';
+                }, 400);
+                return;
+            }
+
+            document.getElementById('loadingOverlay').classList.add('hidden');
+            document.getElementById('mainContent').style.display = 'block';
+
+            // Toast helper
+            function showToast(msg) {
+                const toast = document.getElementById('toastMessage');
+                const toastText = document.getElementById('toastText');
+                toastText.textContent = msg;
+                toast.classList.add('show');
+                setTimeout(() => toast.classList.remove('show'), 2200);
+            }
+
+            // Clipboard copy helper
+            document.querySelectorAll('.btn-copy[data-target]').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const targetId = btn.getAttribute('data-target');
+                    const targetEl = document.getElementById(targetId);
+                    if (targetEl) {
+                        navigator.clipboard.writeText(targetEl.innerText.trim()).then(() => {
+                            showToast(`Copied ${targetEl.innerText.trim()}`);
+                        });
+                    }
+                });
+            });
+
+            // Tabs switching
+            const tabButtons = document.querySelectorAll('.tab-btn');
+            const tabPanels = document.querySelectorAll('.tab-panel');
+            tabButtons.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    tabButtons.forEach(b => b.classList.remove('active'));
+                    tabPanels.forEach(p => p.classList.remove('active'));
+                    btn.classList.add('active');
+                    const targetTab = document.getElementById(btn.getAttribute('data-tab'));
+                    if (targetTab) targetTab.classList.add('active');
+                });
+            });
+
+            // ==========================================
+            // 1. CSS UNIT CONVERTER LOGIC
+            // ==========================================
+            const inputPx = document.getElementById('inputPx');
+            const inputRootBase = document.getElementById('inputRootBase');
+            const inputVpWidth = document.getElementById('inputVpWidth');
+            const resRem = document.getElementById('resRem');
+            const resEm = document.getElementById('resEm');
+            const resVw = document.getElementById('resVw');
+            const resPct = document.getElementById('resPct');
+
+            function updateUnitCalculations() {
+                const px = parseFloat(inputPx.value) || 0;
+                const root = parseFloat(inputRootBase.value) || 16;
+                const vp = parseFloat(inputVpWidth.value) || 1440;
+
+                const rem = (px / root).toFixed(3);
+                const vw = ((px / vp) * 100).toFixed(3);
+                const pct = ((px / root) * 100).toFixed(1);
+
+                resRem.textContent = `${rem} rem`;
+                resEm.textContent = `${rem} em`;
+                resVw.textContent = `${vw} vw`;
+                resPct.textContent = `${pct} %`;
+            }
+
+            [inputPx, inputRootBase, inputVpWidth].forEach(el => el.addEventListener('input', updateUnitCalculations));
+
+            document.querySelectorAll('.btn-preset').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    inputPx.value = btn.getAttribute('data-px');
+                    updateUnitCalculations();
+                });
+            });
+
+            // ==========================================
+            // 2. COLOR TOOLS & WCAG CONTRAST
+            // ==========================================
+            const fgColorPicker = document.getElementById('fgColorPicker');
+            const fgColorInput = document.getElementById('fgColorInput');
+            const bgColorPicker = document.getElementById('bgColorPicker');
+            const bgColorInput = document.getElementById('bgColorInput');
+            const contrastSampleBox = document.getElementById('contrastSampleBox');
+            const contrastRatioVal = document.getElementById('contrastRatioVal');
+            const aaNormalStatus = document.getElementById('aaNormalStatus');
+            const aaLargeStatus = document.getElementById('aaLargeStatus');
+            const aaaStatus = document.getElementById('aaaStatus');
+            const colorRgbVal = document.getElementById('colorRgbVal');
+            const colorHslVal = document.getElementById('colorHslVal');
+
+            function hexToRgb(hex) {
+                let clean = hex.replace('#', '').trim();
+                if (clean.length === 3) clean = clean.split('').map(c => c + c).join('');
+                const num = parseInt(clean, 16);
+                if (isNaN(num)) return { r: 0, g: 0, b: 0 };
+                return { r: (num >> 16) & 255, g: (num >> 8) & 255, b: num & 255 };
+            }
+
+            function rgbToHsl(r, g, b) {
+                r /= 255; g /= 255; b /= 255;
+                const max = Math.max(r, g, b), min = Math.min(r, g, b);
+                let h, s, l = (max + min) / 2;
+                if (max === min) {
+                    h = s = 0;
+                } else {
+                    const d = max - min;
+                    s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+                    switch (max) {
+                        case r: h = (g - b) / d + (g < b ? 6 : 0); break;
+                        case g: h = (b - r) / d + 2; break;
+                        case b: h = (r - g) / d + 4; break;
+                    }
+                    h /= 6;
+                }
+                return {
+                    h: Math.round(h * 360),
+                    s: Math.round(s * 100),
+                    l: Math.round(l * 100)
+                };
+            }
+
+            function getLuminance(r, g, b) {
+                const a = [r, g, b].map(v => {
+                    v /= 255;
+                    return v <= 0.03928 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4);
+                });
+                return a[0] * 0.2126 + a[1] * 0.7152 + a[2] * 0.0722;
+            }
+
+            function updateColorMetrics() {
+                const fgHex = fgColorPicker.value;
+                const bgHex = bgColorPicker.value;
+
+                fgColorInput.value = fgHex.toUpperCase();
+                bgColorInput.value = bgHex.toUpperCase();
+
+                contrastSampleBox.style.color = fgHex;
+                contrastSampleBox.style.backgroundColor = bgHex;
+
+                const fgRgb = hexToRgb(fgHex);
+                const bgRgb = hexToRgb(bgHex);
+                const fgHsl = rgbToHsl(fgRgb.r, fgRgb.g, fgRgb.b);
+
+                colorRgbVal.textContent = `rgb(${fgRgb.r}, ${fgRgb.g}, ${fgRgb.b})`;
+                colorHslVal.textContent = `hsl(${fgHsl.h}, ${fgHsl.s}%, ${fgHsl.l}%)`;
+
+                const l1 = getLuminance(fgRgb.r, fgRgb.g, fgRgb.b);
+                const l2 = getLuminance(bgRgb.r, bgRgb.g, bgRgb.b);
+                const ratio = (Math.max(l1, l2) + 0.05) / (Math.min(l1, l2) + 0.05);
+
+                contrastRatioVal.textContent = `${ratio.toFixed(2)}:1`;
+
+                aaNormalStatus.innerHTML = ratio >= 4.5 ? '<span class="contrast-badge badge-pass">PASS</span>' : '<span class="contrast-badge badge-fail">FAIL</span>';
+                aaLargeStatus.innerHTML = ratio >= 3.0 ? '<span class="contrast-badge badge-pass">PASS</span>' : '<span class="contrast-badge badge-fail">FAIL</span>';
+                aaaStatus.innerHTML = ratio >= 7.0 ? '<span class="contrast-badge badge-pass">PASS</span>' : '<span class="contrast-badge badge-fail">FAIL</span>';
+            }
+
+            fgColorPicker.addEventListener('input', updateColorMetrics);
+            bgColorPicker.addEventListener('input', updateColorMetrics);
+
+            fgColorInput.addEventListener('change', () => {
+                if (/^#[0-9A-Fa-f]{6}$/.test(fgColorInput.value.trim())) {
+                    fgColorPicker.value = fgColorInput.value.trim();
+                    updateColorMetrics();
+                }
+            });
+            bgColorInput.addEventListener('change', () => {
+                if (/^#[0-9A-Fa-f]{6}$/.test(bgColorInput.value.trim())) {
+                    bgColorPicker.value = bgColorInput.value.trim();
+                    updateColorMetrics();
+                }
+            });
+
+            // ==========================================
+            // 3. BASE64 ENCODER / DECODER
+            // ==========================================
+            const base64TextInput = document.getElementById('base64TextInput');
+            const base64Output = document.getElementById('base64Output');
+            const btnEncodeBase64 = document.getElementById('btnEncodeBase64');
+            const btnDecodeBase64 = document.getElementById('btnDecodeBase64');
+            const btnCopyBase64 = document.getElementById('btnCopyBase64');
+
+            btnEncodeBase64.addEventListener('click', () => {
+                const text = base64TextInput.value;
+                try {
+                    const encoded = btoa(unescape(encodeURIComponent(text)));
+                    base64Output.value = encoded;
+                    showToast('Encoded to Base64');
+                } catch (e) {
+                    alert('Encoding error: ' + e.message);
+                }
+            });
+
+            btnDecodeBase64.addEventListener('click', () => {
+                const text = base64TextInput.value.trim();
+                try {
+                    const decoded = decodeURIComponent(escape(atob(text)));
+                    base64Output.value = decoded;
+                    showToast('Decoded from Base64');
+                } catch (e) {
+                    alert('Invalid Base64 string: ' + e.message);
+                }
+            });
+
+            btnCopyBase64.addEventListener('click', () => {
+                if (!base64Output.value) return;
+                navigator.clipboard.writeText(base64Output.value).then(() => {
+                    showToast('Copied Base64 string');
+                });
+            });
+
+            // ==========================================
+            // 4. JSON FORMATTER & VALIDATOR
+            // ==========================================
+            const jsonInput = document.getElementById('jsonInput');
+            const jsonStatus = document.getElementById('jsonStatus');
+            const btnBeautifyJson = document.getElementById('btnBeautifyJson');
+            const btnMinifyJson = document.getElementById('btnMinifyJson');
+            const btnCopyJson = document.getElementById('btnCopyJson');
+            const btnLoadSampleJson = document.getElementById('btnLoadSampleJson');
+
+            btnLoadSampleJson.addEventListener('click', () => {
+                const sample = {
+                    student: {
+                        id: "STU-8821",
+                        name: "Solomon A.",
+                        academy: "SOLVATECH",
+                        course: "Fullstack Web Development",
+                        toolsEnrolled: ["SOLVA-Compress", "SOLVA-Convert", "SOLVA-Stack"],
+                        projectScore: 98.5,
+                        verified: true
+                    }
+                };
+                jsonInput.value = JSON.stringify(sample, null, 2);
+                showJsonStatus('Valid sample JSON loaded', true);
+            });
+
+            function showJsonStatus(msg, isSuccess) {
+                jsonStatus.style.display = 'block';
+                jsonStatus.style.background = isSuccess ? '#e6f4ea' : '#fdecea';
+                jsonStatus.style.color = isSuccess ? '#1e8e3e' : '#d93025';
+                jsonStatus.innerHTML = isSuccess ? `<i class="fas fa-check-circle"></i> ${msg}` : `<i class="fas fa-times-circle"></i> ${msg}`;
+            }
+
+            btnBeautifyJson.addEventListener('click', () => {
+                const raw = jsonInput.value.trim();
+                if (!raw) return;
+                try {
+                    const parsed = JSON.parse(raw);
+                    jsonInput.value = JSON.stringify(parsed, null, 2);
+                    showJsonStatus('Valid JSON - Successfully formatted with 2-space indentation', true);
+                    showToast('Formatted JSON');
+                } catch (err) {
+                    showJsonStatus(`Invalid JSON syntax: ${err.message}`, false);
+                }
+            });
+
+            btnMinifyJson.addEventListener('click', () => {
+                const raw = jsonInput.value.trim();
+                if (!raw) return;
+                try {
+                    const parsed = JSON.parse(raw);
+                    jsonInput.value = JSON.stringify(parsed);
+                    showJsonStatus('Valid JSON - Minified to single line', true);
+                    showToast('Minified JSON');
+                } catch (err) {
+                    showJsonStatus(`Invalid JSON syntax: ${err.message}`, false);
+                }
+            });
+
+            btnCopyJson.addEventListener('click', () => {
+                if (!jsonInput.value) return;
+                navigator.clipboard.writeText(jsonInput.value).then(() => {
+                    showToast('Copied JSON to clipboard');
+                });
+            });
+
+            // Run initial calculations
+            updateUnitCalculations();
+            updateColorMetrics();
+        })();
+    </script>
+</body>
+</html>

@@ -1,0 +1,703 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes" />
+
+    <title>SOLVA-Stack – SOLVATECH Student Tools</title>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, Helvetica, sans-serif;
+            background: #f4f7fc;
+            color: #0B1A2E;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+            padding: 1rem 1rem 2rem;
+        }
+
+        a {
+            text-decoration: none;
+            color: inherit;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        /* =========================
+           LOADING
+        ========================= */
+
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #f4f7fc;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+            transition: opacity 0.4s;
+        }
+
+        .loading-overlay.hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .loading-spinner {
+            width: 50px;
+            height: 50px;
+            border: 4px solid #d0d7de;
+            border-top-color: #1E88E5;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            margin-bottom: 1rem;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        .loading-overlay p {
+            color: #5a6b7b;
+            font-weight: 600;
+        }
+
+        /* =========================
+           BRANDING
+        ========================= */
+
+        .brand {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            margin-bottom: 1.5rem;
+            margin-top: 1rem;
+        }
+
+        .brand-logo {
+            font-size: 2rem;
+            color: #1E88E5;
+        }
+
+        .brand-text {
+            font-size: 1.7rem;
+            font-weight: 800;
+            color: #0B1A2E;
+            letter-spacing: -0.5px;
+        }
+
+        .brand-text span {
+            color: #1E88E5;
+        }
+
+        /* =========================
+           BACK BUTTON
+        ========================= */
+
+        .back-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 1.5rem;
+            font-weight: 700;
+            color: #1E88E5;
+            font-size: 0.95rem;
+            transition: color 0.2s, transform 0.2s;
+        }
+
+        .back-btn:hover {
+            color: #1565C0;
+            transform: translateX(-3px);
+        }
+
+        /* =========================
+           HEADER
+        ========================= */
+
+        .page-header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .page-header h1 {
+            font-size: 2rem;
+            font-weight: 900;
+            color: #0B1A2E;
+        }
+
+        .page-header h1 span {
+            color: #1E88E5;
+        }
+
+        .page-header p {
+            color: #5a6b7b;
+            margin-top: 0.3rem;
+            font-size: 1rem;
+        }
+
+        /* =========================
+           RESOURCE GRID
+        ========================= */
+
+        .resource-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 0.9rem;
+        }
+
+        .resource-card {
+            background: #ffffff;
+            border-radius: 16px;
+            padding: 1.2rem;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+            border: 1px solid #e9eef3;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            transition: transform 0.2s,
+                        box-shadow 0.2s,
+                        border-color 0.2s;
+
+            animation: fadeInUp 0.4s ease both;
+        }
+
+        .resource-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 18px rgba(0,0,0,0.1);
+            border-color: #1E88E5;
+        }
+
+        /* =========================
+           ICON
+        ========================= */
+
+        .resource-icon {
+            width: 52px;
+            height: 52px;
+            border-radius: 12px;
+            background: #eef2f6;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.4rem;
+            color: #1E88E5;
+            flex-shrink: 0;
+            font-weight: 800;
+        }
+
+        .resource-info {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .resource-name {
+            font-weight: 800;
+            font-size: 1.05rem;
+            margin-bottom: 0.15rem;
+        }
+
+        .resource-label {
+            font-size: 0.8rem;
+            color: #5a6b7b;
+        }
+
+        /* =========================
+           OPEN BUTTON
+        ========================= */
+
+        .open-btn {
+            padding: 0.5rem 1rem;
+            background: #1E88E5;
+            color: #fff;
+            border-radius: 8px;
+            font-weight: 700;
+            font-size: 0.8rem;
+            transition: background 0.2s,
+                        transform 0.1s;
+            white-space: nowrap;
+            flex-shrink: 0;
+        }
+
+        .open-btn:hover {
+            background: #1565C0;
+        }
+
+        .open-btn:active {
+            transform: scale(0.95);
+        }
+
+        /* =========================
+           ANIMATIONS
+        ========================= */
+
+        .resource-card:nth-child(1) {
+            animation-delay: 0.05s;
+        }
+
+        .resource-card:nth-child(2) {
+            animation-delay: 0.1s;
+        }
+
+        .resource-card:nth-child(3) {
+            animation-delay: 0.15s;
+        }
+
+        .resource-card:nth-child(4) {
+            animation-delay: 0.2s;
+        }
+
+        .resource-card:nth-child(5) {
+            animation-delay: 0.25s;
+        }
+
+        .resource-card:nth-child(6) {
+            animation-delay: 0.3s;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(15px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* =========================
+           FOOTER
+        ========================= */
+
+        .footer {
+            text-align: center;
+            margin-top: 2rem;
+            font-size: 0.75rem;
+            color: #888;
+            padding-top: 1rem;
+            border-top: 1px solid #e9eef3;
+        }
+
+        /* =========================
+           RESPONSIVE
+        ========================= */
+
+        @media (min-width: 600px) {
+
+            .resource-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .page-header h1 {
+                font-size: 2.2rem;
+            }
+
+            .resource-card {
+                padding: 1.4rem;
+            }
+        }
+
+        @media (max-width: 350px) {
+
+            .resource-card {
+                flex-wrap: wrap;
+            }
+
+            .resource-icon {
+                width: 45px;
+                height: 45px;
+                font-size: 1.2rem;
+            }
+
+            .resource-name {
+                font-size: 0.95rem;
+            }
+
+            .resource-label {
+                font-size: 0.75rem;
+            }
+
+            .open-btn {
+                padding: 0.4rem 0.8rem;
+                font-size: 0.75rem;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- =========================
+         LOADING OVERLAY
+    ========================= -->
+
+    <div class="loading-overlay" id="loadingOverlay">
+
+        <div class="loading-spinner"></div>
+
+        <p>Checking access...</p>
+
+    </div>
+
+
+    <!-- =========================
+         MAIN CONTENT
+    ========================= -->
+
+    <div class="container" id="mainContent" style="display: none;">
+
+        <!-- BRAND -->
+
+        <div class="brand">
+
+            <div class="brand-logo">◆</div>
+
+            <div class="brand-text">
+                SOLVA<span>TECH</span>
+            </div>
+
+        </div>
+
+
+        <!-- BACK -->
+
+        <a href="index.html" class="back-btn">
+            ← Back to Student Tools
+        </a>
+
+
+        <!-- HEADER -->
+
+        <div class="page-header">
+
+            <h1>
+                SOLVA-<span>Stack</span>
+            </h1>
+
+            <p>
+                Recommended resources for SOLVATECH students.
+            </p>
+
+        </div>
+
+
+        <!-- =========================
+             RESOURCE CARDS
+        ========================= -->
+
+        <div class="resource-grid">
+
+
+            <!-- TREBEDIT -->
+
+            <div class="resource-card">
+
+                <div class="resource-icon">
+                    &lt;/&gt;
+                </div>
+
+                <div class="resource-info">
+
+                    <div class="resource-name">
+                        TrebEdit
+                    </div>
+
+                    <div class="resource-label">
+                        Recommended for coding
+                    </div>
+
+                </div>
+
+                <a
+                    href="https://play.google.com/store/apps/details?hl=en-US&id=com.teejay.trebedit"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    class="open-btn"
+                >
+                    OPEN
+                </a>
+
+            </div>
+
+
+            <!-- WEBCODE -->
+
+            <div class="resource-card">
+
+                <div class="resource-icon">
+                    { }
+                </div>
+
+                <div class="resource-info">
+
+                    <div class="resource-name">
+                        WebCode
+                    </div>
+
+                    <div class="resource-label">
+                        Recommended for coding
+                    </div>
+
+                </div>
+
+                <a
+                    href="https://play.google.com/store/apps/details?hl=en-US&id=com.qamar.ide.web"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    class="open-btn"
+                >
+                    OPEN
+                </a>
+
+            </div>
+
+
+            <!-- GITHUB -->
+
+            <div class="resource-card">
+
+                <div class="resource-icon">
+                    GH
+                </div>
+
+                <div class="resource-info">
+
+                    <div class="resource-name">
+                        GitHub
+                    </div>
+
+                    <div class="resource-label">
+                        Recommended for hosting
+                    </div>
+
+                </div>
+
+                <a
+                    href="https://github.com"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    class="open-btn"
+                >
+                    OPEN
+                </a>
+
+            </div>
+
+
+            <!-- FIREBASE -->
+
+            <div class="resource-card">
+
+                <div class="resource-icon">
+                    DB
+                </div>
+
+                <div class="resource-info">
+
+                    <div class="resource-name">
+                        Firebase
+                    </div>
+
+                    <div class="resource-label">
+                        Recommended for backend
+                    </div>
+
+                </div>
+
+                <a
+                    href="https://console.firebase.google.com"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    class="open-btn"
+                >
+                    OPEN
+                </a>
+
+            </div>
+
+
+            <!-- WHO GO HOST -->
+
+            <div class="resource-card">
+
+                <div class="resource-icon">
+                    WG
+                </div>
+
+                <div class="resource-info">
+
+                    <div class="resource-name">
+                        WhoGoHost
+                    </div>
+
+                    <div class="resource-label">
+                        Domain &amp; web hosting
+                    </div>
+
+                </div>
+
+                <a
+                    href="https://www.whogohost.com/"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    class="open-btn"
+                >
+                    OPEN
+                </a>
+
+            </div>
+
+
+            <!-- DEEPSEEK -->
+
+            <div class="resource-card">
+
+                <div class="resource-icon">
+                    DS
+                </div>
+
+                <div class="resource-info">
+
+                    <div class="resource-name">
+                        DeepSeek
+                    </div>
+
+                    <div class="resource-label">
+                        AI coding assistant
+                    </div>
+
+                </div>
+
+                <a
+                    href="https://play.google.com/store/apps/details?id=com.deepseek.chat"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    class="open-btn"
+                >
+                    OPEN
+                </a>
+
+            </div>
+
+        </div>
+
+
+        <!-- FOOTER -->
+
+        <div class="footer">
+            © 2026 SOLVATECH Student Tools
+        </div>
+
+    </div>
+
+
+    <!-- =========================
+         ACCESS CHECK
+    ========================= -->
+
+    <script>
+
+        (function() {
+
+            const SESSION_FLAG =
+                'solvatechToolsVerified';
+
+            const SESSION_TIME =
+                'solvatechToolsTime';
+
+            const SESSION_DURATION =
+                2 * 60 * 60 * 1000;
+
+
+            const loadingOverlay =
+                document.getElementById('loadingOverlay');
+
+            const mainContent =
+                document.getElementById('mainContent');
+
+
+            function isSessionValid() {
+
+                const flag =
+                    localStorage.getItem(SESSION_FLAG);
+
+                const time =
+                    parseInt(
+                        localStorage.getItem(SESSION_TIME) || '0'
+                    );
+
+                return (
+                    flag === 'true' &&
+                    (Date.now() - time) < SESSION_DURATION
+                );
+
+            }
+
+
+            function clearSession() {
+
+                localStorage.removeItem(SESSION_FLAG);
+
+                localStorage.removeItem(SESSION_TIME);
+
+            }
+
+
+            function showMainContent() {
+
+                loadingOverlay.classList.add('hidden');
+
+                mainContent.style.display = 'block';
+
+            }
+
+
+            function redirectToIndex() {
+
+                clearSession();
+
+                window.location.href = 'index.html';
+
+            }
+
+
+            if (isSessionValid()) {
+
+                showMainContent();
+
+            } else {
+
+                setTimeout(
+                    redirectToIndex,
+                    500
+                );
+
+            }
+
+        })();
+
+    </script>
+
+</body>
+    </html>
