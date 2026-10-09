@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes" />
+    <title>SOLVA-Markdown – SOLVATECH Student Tools</title>
+    <meta name="description" content="Live Markdown documentation editor with real-time GitHub-flavored preview and README templates." />
+
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600&family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
+    <!-- Marked library for rich markdown parsing -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/12.0.1/marked.min.js"></script>
+
+    <style>
+        :root {
+            --primary: #1E88E5;
+            --primary-dark: #1565C0;
+            --text-dark: #0B1A2E;
+            --text-muted: #5a6b7b;
+            --bg-page: #f4f7fc;
+            --card-bg: #ffffff;
+            --border-color: #e2e8f0;
+            --radius-lg: 16px;
+            --radius-md: 10px;
+            --shadow-subtle: 0 4px 14px rgba(11, 26, 46, 0.05);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            background: var(--bg-page);
+            color: var(--text-dark);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 1rem 1rem 3rem;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        a { text-decoration: none; color: inherit; }
+        .container { width: 100%; max-width: 1100px; margin: 0 auto; }
+
+        /* Loading */
+        .loading-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: var(--bg-page); display: flex; flex-direction: column; align-items: center; justify-content: center;
+            z-index: 9999; transition: opacity 0.4s ease;
+        }
+        .loading-overlay.hidden { opacity: 0; pointer-events: none; }
+        .loading-spinner {
+            width: 44px; height: 44px; border: 4px solid #d0d7de; border-top-color: var(--primary);
+            border-radius: 50%; animation: spin 0.8s linear infinite; margin-bottom: 1rem;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        /* Top Nav */
+        .top-nav {
+            display: flex; align-items: center; justify-content: space-between;
+            margin-bottom: 1.2rem; flex-wrap: wrap; gap: 0.8rem;
+        }
+        .brand { display: flex; align-items: center; gap: 0.5rem; }
+        .brand-logo { font-size: 1.8rem; color: var(--primary); }
+        .brand-text { font-size: 1.4rem; font-weight: 800; color: var(--text-dark); }
+        .brand-text span { color: var(--primary); }
+
+        .back-btn {
+            display: inline-flex; align-items: center; gap: 0.4rem;
+            font-weight: 600; color: var(--primary); font-size: 0.88rem;
+            background: #fff; padding: 0.45rem 0.9rem; border-radius: 8px;
+            border: 1px solid var(--border-color); box-shadow: var(--shadow-subtle);
+            transition: all 0.2s ease;
+        }
+        .back-btn:hover { color: var(--primary-dark); transform: translateX(-2px); }
+
+        /* Toolbar Card */
+        .toolbar-card {
+            background: #fff; border-radius: var(--radius-lg); padding: 0.8rem 1.2rem;
+            border: 1px solid var(--border-color); box-shadow: var(--shadow-subtle);
+            display: flex; justify-content: space-between; align-items: center;
+            margin-bottom: 1.2rem; flex-wrap: wrap; gap: 0.8rem;
+        }
+        .toolbar-actions { display: flex; gap: 0.3rem; flex-wrap: wrap; }
+        .btn-tool {
+            background: #f8fafc; border: 1px solid var(--border-color); border-radius: 6px;
+            padding: 0.4rem 0.6rem; font-size: 0.85rem; color: var(--text-dark); cursor: pointer;
+            transition: all 0.2s;
+        }
+        .btn-tool:hover { background: #e0f2fe; color: #0284c7; border-color: #bae6fd; }
+
+        .template-select {
+            padding: 0.4rem 0.7rem; border-radius: 6px; border: 1px solid var(--border-color);
+            background: #fafbfc; font-size: 0.82rem; font-weight: 600; outline: none;
+        }
+
+        /* Dual Pane */
+        .editor-grid {
+            display: grid; grid-template-columns: 1fr; gap: 1.2rem;
+        }
+        @media (min-width: 820px) {
+            .editor-grid { grid-template-columns: 1fr 1fr; }
+        }
+
+        .pane {
+            background: #fff; border-radius: var(--radius-lg);
+            border: 1px solid var(--border-color); box-shadow: var(--shadow-subtle);
+            display: flex; flex-direction: column; overflow: hidden;
+            height: 600px;
+        }
+        .pane-header {
+            padding: 0.75rem 1.2rem; background: #f8fafc; border-bottom: 1px solid var(--border-color);
+            font-size: 0.8rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase;
+            letter-spacing: 0.5px; display: flex; justify-content: space-between; align-items: center;
+        }
+        .editor-textarea {
+            flex: 1; width: 100%; padding: 1.2rem; border: none; outline: none; resize: none;
+            font-family: 'Fira Code', monospace; font-size: 0.88rem; line-height: 1.6;
+            color: var(--text-dark); background: #fafbfc;
+        }
+
+        /* Markdown Preview Output */
+        .preview-pane {
+            flex: 1; padding: 1.5rem; overflow-y: auto; line-height: 1.6; color: #24292f;
+            background: #fff;
+        }
+        .preview-pane h1 { font-size: 1.7rem; font-weight: 800; border-bottom: 1px solid #d0d7de; padding-bottom: 0.3rem; margin-bottom: 1rem; color: #0B1A2E; }
+        .preview-pane h2 { font-size: 1.35rem; font-weight: 700; border-bottom: 1px solid #d0d7de; padding-bottom: 0.3rem; margin-top: 1.2rem; margin-bottom: 0.8rem; }
+        .preview-pane h3 { font-size: 1.1rem; font-weight: 700; margin-top: 1rem; margin-bottom: 0.5rem; }
+        .preview-pane p { margin-bottom: 0.8rem; font-size: 0.92rem; }
+        .preview-pane ul, .preview-pane ol { padding-left: 1.5rem; margin-bottom: 0.8rem; }
+        .preview-pane li { margin-bottom: 0.3rem; font-size: 0.92rem; }
+        .preview-pane code {
+            font-family: 'Fira Code', monospace; font-size: 0.82rem; background: #eff1f3;
+            padding: 0.2rem 0.4rem; border-radius: 4px;
+        }
+        .preview-pane pre {
+            background: #0d1117; color: #c9d1d9; padding: 1rem; border-radius: 8px;
+            overflow-x: auto; margin-bottom: 1rem;
+        }
+        .preview-pane pre code { background: transparent; padding: 0; color: inherit; }
+        .preview-pane blockquote {
+            border-left: 4px solid #d0d7de; padding-left: 1rem; color: #57606a; margin-bottom: 1rem; font-style: italic;
+        }
+        .preview-pane table { width: 100%; border-collapse: collapse; margin-bottom: 1rem; font-size: 0.88rem; }
+        .preview-pane th, .preview-pane td { border: 1px solid #d0d7de; padding: 0.5rem 0.8rem; text-align: left; }
+        .preview-pane th { background: #f6f8fa; font-weight: 700; }
+
+        /* Action footer */
+        .bottom-actions {
+            display: flex; gap: 0.8rem; justify-content: flex-end; margin-top: 1.2rem;
+            flex-wrap: wrap;
+        }
+        .btn-action {
+            background: #fff; border: 1px solid var(--border-color); border-radius: 8px;
+            padding: 0.55rem 1rem; font-size: 0.85rem; font-weight: 700; color: var(--text-dark);
+            cursor: pointer; transition: all 0.2s; display: inline-flex; align-items: center; gap: 0.4rem;
+        }
+        .btn-action:hover { border-color: var(--primary); color: var(--primary); }
+        .btn-primary-action { background: var(--primary); color: #fff; border-color: var(--primary); }
+        .btn-primary-action:hover { background: var(--primary-dark); color: #fff; }
+
+        /* Toast */
+        .toast {
+            position: fixed; bottom: 20px; right: 20px; background: #0B1A2E; color: #fff;
+            padding: 0.75rem 1.25rem; border-radius: 10px; font-weight: 600; font-size: 0.88rem;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2); display: flex; align-items: center; gap: 0.5rem;
+            z-index: 10001; opacity: 0; transform: translateY(20px); transition: all 0.3s ease;
+            pointer-events: none;
+        }
+        .toast.show { opacity: 1; transform: translateY(0); }
+    </style>
+</head>
+<body>
+    <div class="loading-overlay" id="loadingOverlay">
+        <div class="loading-spinner"></div>
+        <p>Checking student access...</p>
+    </div>
+
+    <div class="container" id="mainContent" style="display: none;">
+        <div class="top-nav">
+            <div class="brand">
+                <i class="fas fa-cube brand-logo"></i>
+                <div class="brand-text">SOLVA<span>TECH</span></div>
+            </div>
+            <a href="index.html" class="back-btn"><i class="fas fa-arrow-left"></i> Back to Student Tools</a>
+        </div>
+
+        <!-- Toolbar -->
+        <div class="toolbar-card">
+            <div class="toolbar-actions">
+                <button class="btn-tool" data-action="bold" title="Bold"><i class="fas fa-bold"></i></button>
+                <button class="btn-tool" data-action="italic" title="Italic"><i class="fas fa-italic"></i></button>
+                <button class="btn-tool" data-action="heading" title="Heading"><i class="fas fa-heading"></i></button>
+                <button class="btn-tool" data-action="code" title="Code block"><i class="fas fa-code"></i></button>
+                <button class="btn-tool" data-action="quote" title="Blockquote"><i class="fas fa-quote-left"></i></button>
+                <button class="btn-tool" data-action="ul" title="Bullet List"><i class="fas fa-list-ul"></i></button>
+                <button class="btn-tool" data-action="check" title="Checkbox"><i class="fas fa-check-square"></i></button>
+                <button class="btn-tool" data-action="table" title="Table"><i class="fas fa-table"></i></button>
+            </div>
+            <div>
+                <select id="templateSelect" class="template-select">
+                    <option value="readme" selected>Template: Project README.md</option>
+                    <option value="api">Template: API Documentation</option>
+                    <option value="lab">Template: Student Lab Report</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- Editor Dual Pane -->
+        <div class="editor-grid">
+            <div class="pane">
+                <div class="pane-header">
+                    <span><i class="fab fa-markdown"></i> Markdown Editor</span>
+                    <span id="charCount" style="font-size: 0.72rem;">0 chars</span>
+                </div>
+                <textarea id="markdownInput" class="editor-textarea" spellcheck="false"></textarea>
+            </div>
+
+            <div class="pane">
+                <div class="pane-header">
+                    <span><i class="fas fa-eye"></i> Live HTML Preview</span>
+                </div>
+                <div id="previewPane" class="preview-pane"></div>
+            </div>
+        </div>
+
+        <!-- Actions -->
+        <div class="bottom-actions">
+            <button class="btn-action" id="btnCopyHtml"><i class="fas fa-copy"></i> Copy Formatted HTML</button>
+            <button class="btn-action" id="btnCopyMd"><i class="fas fa-clipboard"></i> Copy Raw Markdown</button>
+            <button class="btn-action btn-primary-action" id="btnDownloadMd"><i class="fas fa-download"></i> Download README.md</button>
+        </div>
+    </div>
+
+    <!-- Toast -->
+    <div class="toast" id="toastMessage">
+        <i class="fas fa-check-circle" style="color: #10b981;"></i>
+        <span id="toastText">Action completed</span>
+    </div>
+
+    <script>
+        (function() {
+            // Session check
+            const SESSION_FLAG = 'solvatechToolsVerified';
+            const SESSION_TIME = 'solvatechToolsTime';
+            const SESSION_DURATION = 2 * 60 * 60 * 1000;
+
+            function isSessionValid() {
+                const flag = localStorage.getItem(SESSION_FLAG);
+                const time = parseInt(localStorage.getItem(SESSION_TIME) || '0');
+                return flag === 'true' && (Date.now() - time) < SESSION_DURATION;
+            }
+
+            if (!isSessionValid()) {
+                setTimeout(() => window.location.href = 'index.html', 400);
+                return;
+            }
+
+            document.getElementById('loadingOverlay').classList.add('hidden');
+            document.getElementById('mainContent').style.display = 'block';
+
+            function showToast(msg) {
+                const toast = document.getElementById('toastMessage');
+                const toastText = document.getElementById('toastText');
+                toastText.textContent = msg;
+                toast.classList.add('show');
+                setTimeout(() => toast.classList.remove('show'), 2200);
+            }
+
+            const markdownInput = document.getElementById('markdownInput');
+            const previewPane = document.getElementById('previewPane');
+            const charCount = document.getElementById('charCount');
+            const templateSelect = document.getElementById('templateSelect');
+            const btnCopyHtml = document.getElementById('btnCopyHtml');
+            const btnCopyMd = document.getElementById('btnCopyMd');
+            const btnDownloadMd = document.getElementById('btnDownloadMd');
+
+            const templates = {
+                readme: `# Project Title
+
+> A modern fullstack web application built at SOLVATECH Academy.
+
+## 🚀 Features
+
+- **Responsive Interface**: Mobile-first design optimized for desktop and tablets
+- **Authentication & Security**: Protected routes and access key authorization
+- **Real-Time Data**: Live synchronization with Firebase Realtime Database
+- **Optimized Assets**: Ultra-fast image and asset loading
+
+## 🛠️ Tech Stack
+
+| Technology | Purpose |
+| :--- | :--- |
+| **HTML5 & CSS3** | Semantic layout and responsive styling |
+| **TypeScript / Node** | Application backend and API server |
+| **Firebase** | Realtime cloud database |
+
+## 📦 Installation & Setup
+
+\`\`\`bash
+# 1. Clone repository
+git clone https://github.com/solvatech/student-project.git
+
+# 2. Install dependencies
+npm install
+
+# 3. Start development server
+npm run dev
+\`\`\`
+
+## 📝 License
+MIT License © 2026 SOLVATECH Student
+`,
+                api: `# API Documentation
+
+## Authentication
+All requests require the \`Authorization\` header:
+\`\`\`http
+Authorization: Bearer <SOLVATECH_ACCESS_KEY>
+\`\`\`
+
+---
+
+### \`GET /api/v1/students/:id\`
+Retrieve student profile and tool authorizations.
+
+#### Response (\`200 OK\`):
+\`\`\`json
+{
+  "status": "success",
+  "data": {
+    "id": "STU-8821",
+    "name": "Solomon A.",
+    "toolsUnlocked": ["compress", "convert", "codesnap", "meta", "regex"]
+  }
+}
+\`\`\`
+`,
+                lab: `# Lab Report: Frontend Performance & Image Optimization
+
+**Author:** SOLVATECH Student  
+**Date:** October 2026  
+**Module:** Web Engineering  
+
+## Objective
+Measure file size reductions achieved using WebP conversion and client-side compression.
+
+## Results Summary
+- Original uncompressed payload: **3.8 MB**
+- Optimized WebP payload: **412 KB**
+- Net Reduction: **89.1%**
+`
+            };
+
+            // Set initial template
+            markdownInput.value = templates.readme;
+
+            function renderMarkdown() {
+                const text = markdownInput.value;
+                charCount.textContent = `${text.length} chars`;
+                previewPane.innerHTML = marked.parse(text);
+            }
+
+            markdownInput.addEventListener('input', renderMarkdown);
+
+            templateSelect.addEventListener('change', (e) => {
+                markdownInput.value = templates[e.target.value] || '';
+                renderMarkdown();
+                showToast('Loaded template');
+            });
+
+            // Quick toolbar action buttons
+            document.querySelectorAll('.btn-tool').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const action = btn.getAttribute('data-action');
+                    const start = markdownInput.selectionStart;
+                    const end = markdownInput.selectionEnd;
+                    const val = markdownInput.value;
+                    const sel = val.substring(start, end);
+
+                    let insert = '';
+                    if (action === 'bold') insert = `**${sel || 'bold text'}**`;
+                    else if (action === 'italic') insert = `*${sel || 'italic text'}*`;
+                    else if (action === 'heading') insert = `\n## ${sel || 'Section Heading'}\n`;
+                    else if (action === 'code') insert = `\n\`\`\`javascript\n${sel || '// your code here'}\n\`\`\`\n`;
+                    else if (action === 'quote') insert = `\n> ${sel || 'Quote text'}\n`;
+                    else if (action === 'ul') insert = `\n- Item 1\n- Item 2\n- Item 3\n`;
+                    else if (action === 'check') insert = `\n- [ ] Task to complete\n- [x] Completed task\n`;
+                    else if (action === 'table') insert = `\n| Column 1 | Column 2 |\n| :--- | :--- |\n| Value 1 | Value 2 |\n`;
+
+                    markdownInput.value = val.substring(0, start) + insert + val.substring(end);
+                    renderMarkdown();
+                    markdownInput.focus();
+                });
+            });
+
+            btnCopyHtml.addEventListener('click', () => {
+                navigator.clipboard.writeText(previewPane.innerHTML).then(() => {
+                    showToast('Formatted HTML copied to clipboard');
+                });
+            });
+
+            btnCopyMd.addEventListener('click', () => {
+                navigator.clipboard.writeText(markdownInput.value).then(() => {
+                    showToast('Raw Markdown copied to clipboard');
+                });
+            });
+
+            btnDownloadMd.addEventListener('click', () => {
+                const blob = new Blob([markdownInput.value], { type: 'text/markdown' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = 'README.md';
+                a.click();
+                showToast('Downloaded README.md');
+            });
+
+            renderMarkdown();
+        })();
+    </script>
+</body>
+</html>

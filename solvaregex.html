@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes" />
+    <title>SOLVA-Regex – SOLVATECH Student Tools</title>
+    <meta name="description" content="Interactive regular expression tester and cheatsheet for web development students." />
+
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600&family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
+
+    <style>
+        :root {
+            --primary: #1E88E5;
+            --primary-dark: #1565C0;
+            --text-dark: #0B1A2E;
+            --text-muted: #5a6b7b;
+            --bg-page: #f4f7fc;
+            --card-bg: #ffffff;
+            --border-color: #e2e8f0;
+            --radius-lg: 16px;
+            --radius-md: 10px;
+            --shadow-subtle: 0 4px 14px rgba(11, 26, 46, 0.05);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            background: var(--bg-page);
+            color: var(--text-dark);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 1rem 1rem 3rem;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        a { text-decoration: none; color: inherit; }
+        .container { width: 100%; max-width: 960px; margin: 0 auto; }
+
+        /* Loading */
+        .loading-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: var(--bg-page); display: flex; flex-direction: column; align-items: center; justify-content: center;
+            z-index: 9999; transition: opacity 0.4s ease;
+        }
+        .loading-overlay.hidden { opacity: 0; pointer-events: none; }
+        .loading-spinner {
+            width: 44px; height: 44px; border: 4px solid #d0d7de; border-top-color: var(--primary);
+            border-radius: 50%; animation: spin 0.8s linear infinite; margin-bottom: 1rem;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        /* Top Nav */
+        .top-nav {
+            display: flex; align-items: center; justify-content: space-between;
+            margin-bottom: 1.5rem; flex-wrap: wrap; gap: 0.8rem;
+        }
+        .brand { display: flex; align-items: center; gap: 0.5rem; }
+        .brand-logo { font-size: 1.8rem; color: var(--primary); }
+        .brand-text { font-size: 1.4rem; font-weight: 800; color: var(--text-dark); }
+        .brand-text span { color: var(--primary); }
+
+        .back-btn {
+            display: inline-flex; align-items: center; gap: 0.4rem;
+            font-weight: 600; color: var(--primary); font-size: 0.88rem;
+            background: #fff; padding: 0.45rem 0.9rem; border-radius: 8px;
+            border: 1px solid var(--border-color); box-shadow: var(--shadow-subtle);
+            transition: all 0.2s ease;
+        }
+        .back-btn:hover { color: var(--primary-dark); transform: translateX(-2px); }
+
+        /* Page Header */
+        .page-header { text-align: center; margin-bottom: 1.8rem; }
+        .page-header h1 { font-size: 2rem; font-weight: 900; color: var(--text-dark); }
+        .page-header h1 span { color: #f59e0b; }
+        .page-header p { color: var(--text-muted); font-size: 0.95rem; margin-top: 0.3rem; }
+
+        /* Regex Bar */
+        .regex-bar-card {
+            background: #fff; border-radius: var(--radius-lg); padding: 1.25rem 1.5rem;
+            border: 1px solid var(--border-color); box-shadow: var(--shadow-subtle);
+            margin-bottom: 1.5rem;
+        }
+        .regex-input-row {
+            display: flex; align-items: center; background: #fafbfc;
+            border: 1px solid var(--border-color); border-radius: 12px;
+            padding: 0.5rem 0.8rem; transition: border-color 0.2s;
+        }
+        .regex-input-row:focus-within {
+            border-color: var(--primary); background: #fff; box-shadow: 0 0 0 3px rgba(30,136,229,0.12);
+        }
+        .regex-slash { font-family: monospace; font-size: 1.3rem; font-weight: 700; color: #94a3b8; }
+        .regex-input {
+            flex: 1; border: none; background: transparent; outline: none;
+            font-family: 'Fira Code', monospace; font-size: 1rem; color: var(--text-dark);
+            padding: 0 0.5rem;
+        }
+        .flag-toggles { display: flex; gap: 0.3rem; }
+        .flag-btn {
+            background: #e2e8f0; border: none; border-radius: 6px; padding: 0.3rem 0.5rem;
+            font-family: monospace; font-size: 0.82rem; font-weight: 700; color: #64748b;
+            cursor: pointer; transition: all 0.2s;
+        }
+        .flag-btn.active { background: #dbeafe; color: #1e40af; }
+
+        /* Presets Bar */
+        .presets-row {
+            display: flex; align-items: center; gap: 0.5rem; margin-top: 0.8rem;
+            overflow-x: auto; padding-bottom: 0.2rem;
+        }
+        .preset-chip {
+            background: #f1f5f9; border: 1px solid var(--border-color); border-radius: 6px;
+            padding: 0.25rem 0.6rem; font-size: 0.75rem; font-weight: 600; color: #475569;
+            cursor: pointer; white-space: nowrap; transition: all 0.2s;
+        }
+        .preset-chip:hover { background: #e0f2fe; color: #0369a1; border-color: #bae6fd; }
+
+        /* Workspace Grid */
+        .workspace-grid {
+            display: grid; grid-template-columns: 1fr; gap: 1.5rem;
+        }
+        @media (min-width: 820px) {
+            .workspace-grid { grid-template-columns: 1fr 1fr; }
+        }
+
+        .panel-card {
+            background: #fff; border-radius: var(--radius-lg); padding: 1.25rem;
+            border: 1px solid var(--border-color); box-shadow: var(--shadow-subtle);
+            display: flex; flex-direction: column;
+        }
+        .panel-header {
+            display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.8rem;
+        }
+        .panel-title {
+            font-size: 0.82rem; font-weight: 700; color: var(--text-dark);
+            text-transform: uppercase; letter-spacing: 0.5px;
+        }
+        .match-count {
+            font-size: 0.78rem; font-weight: 700; color: #16a34a; background: #dcfce7;
+            padding: 0.2rem 0.6rem; border-radius: 12px;
+        }
+
+        .test-textarea {
+            width: 100%; min-height: 180px; padding: 0.85rem; border-radius: 8px;
+            border: 1px solid var(--border-color); background: #fafbfc;
+            font-family: 'Fira Code', monospace; font-size: 0.88rem; line-height: 1.5;
+            color: var(--text-dark); outline: none; resize: vertical;
+        }
+        .test-textarea:focus { border-color: var(--primary); background: #fff; }
+
+        /* Highlight Display */
+        .highlight-output {
+            min-height: 180px; max-height: 260px; overflow-y: auto; padding: 0.85rem;
+            border-radius: 8px; border: 1px solid var(--border-color); background: #fafbfc;
+            font-family: 'Fira Code', monospace; font-size: 0.88rem; line-height: 1.5;
+            white-space: pre-wrap; word-break: break-word; color: #334155;
+        }
+        .match-highlight {
+            background: #fde047; color: #854d0e; font-weight: 600; border-radius: 3px;
+            padding: 0 2px;
+        }
+
+        /* Match Details */
+        .matches-list {
+            margin-top: 1rem; max-height: 140px; overflow-y: auto;
+            border-top: 1px solid var(--border-color); padding-top: 0.8rem;
+        }
+        .match-row {
+            font-family: monospace; font-size: 0.78rem; padding: 0.3rem 0;
+            display: flex; justify-content: space-between; border-bottom: 1px dashed #f1f5f9;
+        }
+
+        /* Cheatsheet section */
+        .cheat-grid {
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 0.6rem; margin-top: 0.8rem;
+        }
+        .cheat-item {
+            background: #f8fafc; border: 1px solid #f1f5f9; border-radius: 6px;
+            padding: 0.5rem; font-size: 0.75rem;
+        }
+        .cheat-code { font-family: monospace; font-weight: 700; color: #0284c7; }
+        .cheat-desc { color: #64748b; font-size: 0.7rem; }
+
+        /* Toast */
+        .toast {
+            position: fixed; bottom: 20px; right: 20px; background: #0B1A2E; color: #fff;
+            padding: 0.75rem 1.25rem; border-radius: 10px; font-weight: 600; font-size: 0.88rem;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2); display: flex; align-items: center; gap: 0.5rem;
+            z-index: 10001; opacity: 0; transform: translateY(20px); transition: all 0.3s ease;
+            pointer-events: none;
+        }
+        .toast.show { opacity: 1; transform: translateY(0); }
+    </style>
+</head>
+<body>
+    <div class="loading-overlay" id="loadingOverlay">
+        <div class="loading-spinner"></div>
+        <p>Checking student access...</p>
+    </div>
+
+    <div class="container" id="mainContent" style="display: none;">
+        <div class="top-nav">
+            <div class="brand">
+                <i class="fas fa-cube brand-logo"></i>
+                <div class="brand-text">SOLVA<span>TECH</span></div>
+            </div>
+            <a href="index.html" class="back-btn"><i class="fas fa-arrow-left"></i> Back to Student Tools</a>
+        </div>
+
+        <div class="page-header">
+            <h1>SOLVA-<span>Regex</span></h1>
+            <p>Interactive regular expression playground, validator, and cheatsheet for student projects.</p>
+        </div>
+
+        <!-- Pattern Bar -->
+        <div class="regex-bar-card">
+            <div class="regex-input-row">
+                <span class="regex-slash">/</span>
+                <input type="text" id="regexInput" class="regex-input" value="[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}" placeholder="Enter regular expression pattern..." />
+                <span class="regex-slash">/</span>
+                <div class="flag-toggles">
+                    <button class="flag-btn active" data-flag="g" title="Global match">g</button>
+                    <button class="flag-btn active" data-flag="i" title="Case insensitive">i</button>
+                    <button class="flag-btn" data-flag="m" title="Multiline">m</button>
+                    <button class="flag-btn" data-flag="s" title="Dotall">s</button>
+                </div>
+            </div>
+
+            <!-- Student Presets -->
+            <div class="presets-row">
+                <span style="font-size: 0.72rem; font-weight: 700; color: #94a3b8; text-transform: uppercase;">Presets:</span>
+                <span class="preset-chip" data-pattern="[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}" data-flags="gi">Email Address</span>
+                <span class="preset-chip" data-pattern="https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)" data-flags="gi">URL Link</span>
+                <span class="preset-chip" data-pattern="^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$" data-flags="g">Hex Color</span>
+                <span class="preset-chip" data-pattern="^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$" data-flags="g">Strong Password</span>
+                <span class="preset-chip" data-pattern="\d{4}-\d{2}-\d{2}" data-flags="g">Date (YYYY-MM-DD)</span>
+                <span class="preset-chip" data-pattern="^[a-z0-9]+(?:-[a-z0-9]+)*$" data-flags="g">Slug / URL-Friendly</span>
+            </div>
+        </div>
+
+        <div class="workspace-grid">
+            <!-- Left: Input Text -->
+            <div class="panel-card">
+                <div class="panel-header">
+                    <span class="panel-title">Test Corpus String</span>
+                    <button id="btnClear" style="background: transparent; border: none; font-size: 0.75rem; color: #94a3b8; cursor: pointer;">Clear Text</button>
+                </div>
+                <textarea id="testInput" class="test-textarea">Welcome to SOLVATECH Academy!
+Contact support at info@solvatech.academy or admin@edu.org.
+You can also reach out to john.doe+test@gmail.com for student enrollment.
+Invalid examples: test@, @domain.com, user@domain.</textarea>
+            </div>
+
+            <!-- Right: Realtime Highlight & Details -->
+            <div class="panel-card">
+                <div class="panel-header">
+                    <span class="panel-title">Matches Inspector</span>
+                    <span class="match-count" id="matchBadge">0 matches</span>
+                </div>
+                <div class="highlight-output" id="highlightOutput"></div>
+                <div class="matches-list" id="matchesList"></div>
+            </div>
+        </div>
+
+        <!-- Cheatsheet Card -->
+        <div class="panel-card" style="margin-top: 1.5rem;">
+            <div class="panel-title"><i class="fas fa-book" style="color: var(--primary);"></i> Student Regex Cheatsheet</div>
+            <div class="cheat-grid">
+                <div class="cheat-item"><span class="cheat-code">\d</span> <span class="cheat-desc">Any digit (0-9)</span></div>
+                <div class="cheat-item"><span class="cheat-code">\w</span> <span class="cheat-desc">Word char (a-z, A-Z, 0-9, _)</span></div>
+                <div class="cheat-item"><span class="cheat-code">\s</span> <span class="cheat-desc">Whitespace (space, tab, nl)</span></div>
+                <div class="cheat-item"><span class="cheat-code">^ / $</span> <span class="cheat-desc">Start / End of string</span></div>
+                <div class="cheat-item"><span class="cheat-code">+ / *</span> <span class="cheat-desc">1 or more / 0 or more</span></div>
+                <div class="cheat-item"><span class="cheat-code">?</span> <span class="cheat-desc">Optional (0 or 1)</span></div>
+                <div class="cheat-item"><span class="cheat-code">{n,m}</span> <span class="cheat-desc">Between n and m times</span></div>
+                <div class="cheat-item"><span class="cheat-code">(...)</span> <span class="cheat-desc">Capturing group</span></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast -->
+    <div class="toast" id="toastMessage">
+        <i class="fas fa-check-circle" style="color: #10b981;"></i>
+        <span id="toastText">Action completed</span>
+    </div>
+
+    <script>
+        (function() {
+            // Session check
+            const SESSION_FLAG = 'solvatechToolsVerified';
+            const SESSION_TIME = 'solvatechToolsTime';
+            const SESSION_DURATION = 2 * 60 * 60 * 1000;
+
+            function isSessionValid() {
+                const flag = localStorage.getItem(SESSION_FLAG);
+                const time = parseInt(localStorage.getItem(SESSION_TIME) || '0');
+                return flag === 'true' && (Date.now() - time) < SESSION_DURATION;
+            }
+
+            if (!isSessionValid()) {
+                setTimeout(() => window.location.href = 'index.html', 400);
+                return;
+            }
+
+            document.getElementById('loadingOverlay').classList.add('hidden');
+            document.getElementById('mainContent').style.display = 'block';
+
+            function showToast(msg) {
+                const toast = document.getElementById('toastMessage');
+                const toastText = document.getElementById('toastText');
+                toastText.textContent = msg;
+                toast.classList.add('show');
+                setTimeout(() => toast.classList.remove('show'), 2200);
+            }
+
+            // Elements
+            const regexInput = document.getElementById('regexInput');
+            const testInput = document.getElementById('testInput');
+            const highlightOutput = document.getElementById('highlightOutput');
+            const matchBadge = document.getElementById('matchBadge');
+            const matchesList = document.getElementById('matchesList');
+            const flagButtons = document.querySelectorAll('.flag-btn');
+            const presetChips = document.querySelectorAll('.preset-chip');
+            const btnClear = document.getElementById('btnClear');
+
+            function getActiveFlags() {
+                let flags = '';
+                flagButtons.forEach(btn => {
+                    if (btn.classList.contains('active')) flags += btn.getAttribute('data-flag');
+                });
+                return flags;
+            }
+
+            flagButtons.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    btn.classList.toggle('active');
+                    runRegex();
+                });
+            });
+
+            presetChips.forEach(chip => {
+                chip.addEventListener('click', () => {
+                    regexInput.value = chip.getAttribute('data-pattern');
+                    const flags = chip.getAttribute('data-flags') || 'g';
+                    flagButtons.forEach(btn => {
+                        const f = btn.getAttribute('data-flag');
+                        if (flags.includes(f)) btn.classList.add('active');
+                        else btn.classList.remove('active');
+                    });
+                    runRegex();
+                    showToast(`Loaded ${chip.textContent} preset`);
+                });
+            });
+
+            btnClear.addEventListener('click', () => {
+                testInput.value = '';
+                runRegex();
+            });
+
+            function runRegex() {
+                const patternStr = regexInput.value;
+                const text = testInput.value;
+                const flags = getActiveFlags();
+
+                matchesList.innerHTML = '';
+
+                if (!patternStr) {
+                    highlightOutput.textContent = text;
+                    matchBadge.textContent = '0 matches';
+                    matchBadge.style.background = '#f1f5f9';
+                    matchBadge.style.color = '#64748b';
+                    return;
+                }
+
+                try {
+                    const regex = new RegExp(patternStr, flags);
+                    let matches = [];
+                    let match;
+
+                    if (flags.includes('g')) {
+                        while ((match = regex.exec(text)) !== null) {
+                            matches.push({ text: match[0], index: match.index });
+                            if (match.index === regex.lastIndex) regex.lastIndex++; // avoid zero-length infinite loop
+                        }
+                    } else {
+                        match = regex.exec(text);
+                        if (match) matches.push({ text: match[0], index: match.index });
+                    }
+
+                    matchBadge.textContent = `${matches.length} match${matches.length !== 1 ? 'es' : ''}`;
+                    matchBadge.style.background = matches.length > 0 ? '#dcfce7' : '#fef2f2';
+                    matchBadge.style.color = matches.length > 0 ? '#16a34a' : '#ef4444';
+
+                    // Build highlighted HTML safely
+                    let lastIdx = 0;
+                    let html = '';
+                    matches.forEach((m, i) => {
+                        html += escapeHtml(text.slice(lastIdx, m.index));
+                        html += `<mark class="match-highlight">${escapeHtml(m.text)}</mark>`;
+                        lastIdx = m.index + m.text.length;
+
+                        const row = document.createElement('div');
+                        row.className = 'match-row';
+                        row.innerHTML = `<span>#${i + 1}: <strong>${escapeHtml(m.text)}</strong></span><span style="color:#94a3b8">pos: ${m.index}</span>`;
+                        matchesList.appendChild(row);
+                    });
+                    html += escapeHtml(text.slice(lastIdx));
+                    highlightOutput.innerHTML = html;
+                } catch (e) {
+                    matchBadge.textContent = 'Syntax error';
+                    matchBadge.style.background = '#fef2f2';
+                    matchBadge.style.color = '#ef4444';
+                    highlightOutput.innerHTML = `<span style="color: #ef4444;">Invalid regular expression: ${escapeHtml(e.message)}</span>`;
+                }
+            }
+
+            function escapeHtml(str) {
+                return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+            }
+
+            regexInput.addEventListener('input', runRegex);
+            testInput.addEventListener('input', runRegex);
+
+            runRegex();
+        })();
+    </script>
+</body>
+</html>

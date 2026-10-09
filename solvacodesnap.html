@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes" />
+    <title>SOLVA-CodeSnap – SOLVATECH Student Tools</title>
+    <meta name="description" content="Generate beautiful code snippet screenshots and presentation cards for assignments and portfolios." />
+
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600&family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
+    <!-- html2canvas for crisp export -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+
+    <style>
+        :root {
+            --primary: #1E88E5;
+            --primary-dark: #1565C0;
+            --text-dark: #0B1A2E;
+            --text-muted: #5a6b7b;
+            --bg-page: #f4f7fc;
+            --card-bg: #ffffff;
+            --border-color: #e2e8f0;
+            --radius-lg: 16px;
+            --radius-md: 10px;
+            --shadow-subtle: 0 4px 14px rgba(11, 26, 46, 0.05);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            background: var(--bg-page);
+            color: var(--text-dark);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 1rem 1rem 3rem;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        a { text-decoration: none; color: inherit; }
+        .container { width: 100%; max-width: 960px; margin: 0 auto; }
+
+        /* Loading */
+        .loading-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: var(--bg-page); display: flex; flex-direction: column; align-items: center; justify-content: center;
+            z-index: 9999; transition: opacity 0.4s ease;
+        }
+        .loading-overlay.hidden { opacity: 0; pointer-events: none; }
+        .loading-spinner {
+            width: 44px; height: 44px; border: 4px solid #d0d7de; border-top-color: var(--primary);
+            border-radius: 50%; animation: spin 0.8s linear infinite; margin-bottom: 1rem;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        /* Top Nav */
+        .top-nav {
+            display: flex; align-items: center; justify-content: space-between;
+            margin-bottom: 1.5rem; flex-wrap: wrap; gap: 0.8rem;
+        }
+        .brand { display: flex; align-items: center; gap: 0.5rem; }
+        .brand-logo { font-size: 1.8rem; color: var(--primary); }
+        .brand-text { font-size: 1.4rem; font-weight: 800; color: var(--text-dark); }
+        .brand-text span { color: var(--primary); }
+
+        .back-btn {
+            display: inline-flex; align-items: center; gap: 0.4rem;
+            font-weight: 600; color: var(--primary); font-size: 0.88rem;
+            background: #fff; padding: 0.45rem 0.9rem; border-radius: 8px;
+            border: 1px solid var(--border-color); box-shadow: var(--shadow-subtle);
+            transition: all 0.2s ease;
+        }
+        .back-btn:hover { color: var(--primary-dark); transform: translateX(-2px); }
+
+        /* Header */
+        .page-header { text-align: center; margin-bottom: 1.5rem; }
+        .page-header h1 { font-size: 2rem; font-weight: 900; color: var(--text-dark); }
+        .page-header h1 span { color: #8b5cf6; }
+        .page-header p { color: var(--text-muted); font-size: 0.95rem; margin-top: 0.3rem; }
+
+        /* Layout Grid */
+        .snap-grid {
+            display: grid; grid-template-columns: 1fr; gap: 1.5rem;
+        }
+        @media (min-width: 820px) {
+            .snap-grid { grid-template-columns: 320px 1fr; }
+        }
+
+        /* Controls Panel */
+        .controls-panel {
+            background: #fff; border-radius: var(--radius-lg); padding: 1.25rem;
+            border: 1px solid var(--border-color); box-shadow: var(--shadow-subtle);
+            display: flex; flex-direction: column; gap: 1rem;
+        }
+        .control-group label {
+            display: block; font-size: 0.75rem; font-weight: 700; color: var(--text-dark);
+            text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 0.35rem;
+        }
+        .control-select, .control-input {
+            width: 100%; padding: 0.6rem 0.75rem; border-radius: 8px;
+            border: 1px solid var(--border-color); background: #fafbfc;
+            font-size: 0.88rem; color: var(--text-dark); outline: none;
+            transition: border-color 0.2s;
+        }
+        .control-select:focus, .control-input:focus { border-color: var(--primary); background: #fff; }
+
+        /* Preview Canvas Container */
+        .canvas-wrapper {
+            display: flex; flex-direction: column; align-items: center; justify-content: flex-start;
+        }
+        .export-card-stage {
+            width: 100%; min-height: 380px; padding: 36px; border-radius: 16px;
+            display: flex; align-items: center; justify-content: center;
+            transition: all 0.25s ease; position: relative; overflow: hidden;
+            background: linear-gradient(135deg, #6366f1 0%, #a855f7 50%, #ec4899 100%);
+        }
+
+        /* The Window Box */
+        .code-window {
+            width: 100%; max-width: 620px; border-radius: 12px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+            overflow: hidden; font-family: 'Fira Code', monospace;
+            transition: all 0.2s ease;
+        }
+        .window-header {
+            padding: 10px 14px; display: flex; align-items: center; justify-content: space-between;
+            user-select: none; border-bottom: 1px solid rgba(255,255,255,0.08);
+        }
+        .window-dots { display: flex; gap: 6px; }
+        .window-dot { width: 11px; height: 11px; border-radius: 50%; display: inline-block; }
+        .dot-close { background: #ff5f56; }
+        .dot-min { background: #ffbd2e; }
+        .dot-max { background: #27c93f; }
+        .window-title { font-size: 0.78rem; font-weight: 500; opacity: 0.8; letter-spacing: 0.3px; }
+
+        .code-editor-area {
+            padding: 14px 16px; min-height: 180px; outline: none;
+            font-size: 0.88rem; line-height: 1.6; white-space: pre; overflow-x: auto;
+            tab-size: 2;
+        }
+
+        /* Action Buttons */
+        .action-bar {
+            display: flex; gap: 0.8rem; margin-top: 1rem; width: 100%; justify-content: flex-end;
+            flex-wrap: wrap;
+        }
+        .btn-snap {
+            padding: 0.7rem 1.2rem; border-radius: 8px; font-weight: 700; font-size: 0.88rem;
+            border: none; cursor: pointer; transition: all 0.2s ease; display: inline-flex;
+            align-items: center; gap: 0.4rem;
+        }
+        .btn-primary-snap { background: var(--primary); color: #fff; }
+        .btn-primary-snap:hover { background: var(--primary-dark); transform: translateY(-1px); }
+        .btn-secondary-snap { background: #fff; color: var(--text-dark); border: 1px solid var(--border-color); }
+        .btn-secondary-snap:hover { background: #f8fafc; }
+
+        /* Toast */
+        .toast {
+            position: fixed; bottom: 20px; right: 20px; background: #0B1A2E; color: #fff;
+            padding: 0.75rem 1.25rem; border-radius: 10px; font-weight: 600; font-size: 0.88rem;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2); display: flex; align-items: center; gap: 0.5rem;
+            z-index: 10001; opacity: 0; transform: translateY(20px); transition: all 0.3s ease;
+            pointer-events: none;
+        }
+        .toast.show { opacity: 1; transform: translateY(0); }
+    </style>
+</head>
+<body>
+    <div class="loading-overlay" id="loadingOverlay">
+        <div class="loading-spinner"></div>
+        <p>Checking student access...</p>
+    </div>
+
+    <div class="container" id="mainContent" style="display: none;">
+        <div class="top-nav">
+            <div class="brand">
+                <i class="fas fa-cube brand-logo"></i>
+                <div class="brand-text">SOLVA<span>TECH</span></div>
+            </div>
+            <a href="index.html" class="back-btn"><i class="fas fa-arrow-left"></i> Back to Student Tools</a>
+        </div>
+
+        <div class="page-header">
+            <h1>SOLVA-<span>CodeSnap</span></h1>
+            <p>Generate beautiful, clean code cards for student portfolios, project reports, and documentation.</p>
+        </div>
+
+        <div class="snap-grid">
+            <!-- Left Controls -->
+            <div class="controls-panel">
+                <div class="control-group">
+                    <label>File Tab Name</label>
+                    <input type="text" id="windowTitleInput" class="control-input" value="api-service.ts" />
+                </div>
+
+                <div class="control-group">
+                    <label>Window Theme</label>
+                    <select id="themeSelect" class="control-select">
+                        <option value="dark-modern" selected>Dark Slate (Modern)</option>
+                        <option value="dracula">Dracula Dark</option>
+                        <option value="nord">Nord Frosted Blue</option>
+                        <option value="github-light">GitHub Clean Light</option>
+                    </select>
+                </div>
+
+                <div class="control-group">
+                    <label>Card Background</label>
+                    <select id="bgSelect" class="control-select">
+                        <option value="purple-pink" selected>Gradient Mesh (Purple & Pink)</option>
+                        <option value="blue-cyan">Ocean Deep (Blue & Cyan)</option>
+                        <option value="sunset">Sunset Flare (Orange & Violet)</option>
+                        <option value="emerald">Cyber Emerald (Green & Teal)</option>
+                        <option value="slate">Dark Carbon (Monochrome)</option>
+                        <option value="transparent">Transparent Background</option>
+                    </select>
+                </div>
+
+                <div class="control-group">
+                    <label>Stage Padding</label>
+                    <select id="paddingSelect" class="control-select">
+                        <option value="20px">Compact (20px)</option>
+                        <option value="36px" selected>Balanced (36px)</option>
+                        <option value="54px">Expansive (54px)</option>
+                    </select>
+                </div>
+
+                <div class="control-group">
+                    <label>Sample Student Code</label>
+                    <select id="sampleSelect" class="control-select">
+                        <option value="fetch">Fetch API / Async Await</option>
+                        <option value="express">Express.js API Route</option>
+                        <option value="react">React Custom Hook</option>
+                        <option value="css">CSS Keyframes Animation</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Right Preview & Export -->
+            <div class="canvas-wrapper">
+                <div class="export-card-stage" id="exportStage">
+                    <div class="code-window" id="codeWindow">
+                        <div class="window-header" id="windowHeader">
+                            <div class="window-dots">
+                                <span class="window-dot dot-close"></span>
+                                <span class="window-dot dot-min"></span>
+                                <span class="window-dot dot-max"></span>
+                            </div>
+                            <span class="window-title" id="displayTitle">api-service.ts</span>
+                            <div style="width: 35px;"></div>
+                        </div>
+                        <pre class="code-editor-area" id="codeEditorArea" contenteditable="true" spellcheck="false"></pre>
+                    </div>
+                </div>
+
+                <div class="action-bar">
+                    <button class="btn-snap btn-secondary-snap" id="btnCopyImage">
+                        <i class="fas fa-clipboard"></i> Copy Image to Clipboard
+                    </button>
+                    <button class="btn-snap btn-primary-snap" id="btnDownloadPng">
+                        <i class="fas fa-download"></i> Download PNG Card
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div class="toast" id="toastMessage">
+        <i class="fas fa-check-circle" style="color: #10b981;"></i>
+        <span id="toastText">Action completed</span>
+    </div>
+
+    <script>
+        (function() {
+            // Unified session check
+            const SESSION_FLAG = 'solvatechToolsVerified';
+            const SESSION_TIME = 'solvatechToolsTime';
+            const SESSION_DURATION = 2 * 60 * 60 * 1000;
+
+            function isSessionValid() {
+                const flag = localStorage.getItem(SESSION_FLAG);
+                const time = parseInt(localStorage.getItem(SESSION_TIME) || '0');
+                return flag === 'true' && (Date.now() - time) < SESSION_DURATION;
+            }
+
+            if (!isSessionValid()) {
+                setTimeout(() => window.location.href = 'index.html', 400);
+                return;
+            }
+
+            document.getElementById('loadingOverlay').classList.add('hidden');
+            document.getElementById('mainContent').style.display = 'block';
+
+            function showToast(msg) {
+                const toast = document.getElementById('toastMessage');
+                const toastText = document.getElementById('toastText');
+                toastText.textContent = msg;
+                toast.classList.add('show');
+                setTimeout(() => toast.classList.remove('show'), 2200);
+            }
+
+            // DOM elements
+            const exportStage = document.getElementById('exportStage');
+            const codeWindow = document.getElementById('codeWindow');
+            const windowHeader = document.getElementById('windowHeader');
+            const codeEditorArea = document.getElementById('codeEditorArea');
+            const windowTitleInput = document.getElementById('windowTitleInput');
+            const displayTitle = document.getElementById('displayTitle');
+            const themeSelect = document.getElementById('themeSelect');
+            const bgSelect = document.getElementById('bgSelect');
+            const paddingSelect = document.getElementById('paddingSelect');
+            const sampleSelect = document.getElementById('sampleSelect');
+            const btnDownloadPng = document.getElementById('btnDownloadPng');
+            const btnCopyImage = document.getElementById('btnCopyImage');
+
+            const samples = {
+                fetch: `// Student API Integration Utility
+async function fetchStudentAssignments(studentId: string) {
+  try {
+    const res = await fetch(\`/api/students/\${studentId}/assignments\`);
+    if (!res.ok) throw new Error(\`HTTP status \${res.status}\`);
+    const data = await res.json();
+    return { success: true, count: data.length, records: data };
+  } catch (error) {
+    console.error("Failed to load records:", error);
+    return { success: false, error: (error as Error).message };
+  }
+}`,
+                express: `import express, { Request, Response } from 'express';
+const router = express.Router();
+
+router.post('/submit-lab', async (req: Request, res: Response) => {
+  const { studentKey, labModule, codeUrl } = req.body;
+  if (!studentKey || !labModule) {
+    return res.status(400).json({ error: 'Missing submission fields' });
+  }
+  const submissionId = crypto.randomUUID();
+  res.status(201).json({ status: 'Grading queued', submissionId });
+});
+
+export default router;`,
+                react: `import { useState, useEffect } from 'react';
+
+export function useOnlineStatus() {
+  const [isOnline, setIsOnline] = useState(navigator.onLine);
+
+  useEffect(() => {
+    const handleOnline = () => setIsOnline(true);
+    const handleOffline = () => setIsOnline(false);
+
+    window.addEventListener('online', handleOnline);
+    window.addEventListener('offline', handleOffline);
+    return () => {
+      window.removeEventListener('online', handleOnline);
+      window.removeEventListener('offline', handleOffline);
+    };
+  }, []);
+
+  return isOnline;
+}`,
+                css: `@keyframes pulseGlow {
+  0%, 100% {
+    transform: translateY(0);
+    box-shadow: 0 4px 14px rgba(30, 136, 229, 0.2);
+  }
+  50% {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 28px rgba(30, 136, 229, 0.4);
+  }
+}
+
+.student-card:hover {
+  animation: pulseGlow 1.8s ease-in-out infinite;
+}`
+            };
+
+            // Set initial code
+            codeEditorArea.textContent = samples.fetch;
+
+            // Title sync
+            windowTitleInput.addEventListener('input', (e) => {
+                displayTitle.textContent = e.target.value.trim() || 'snippet.ts';
+            });
+
+            // Sample code switcher
+            sampleSelect.addEventListener('change', (e) => {
+                codeEditorArea.textContent = samples[e.target.value] || '';
+                if (e.target.value === 'fetch') windowTitleInput.value = 'api-service.ts';
+                else if (e.target.value === 'express') windowTitleInput.value = 'routes.ts';
+                else if (e.target.value === 'react') windowTitleInput.value = 'useOnlineStatus.ts';
+                else if (e.target.value === 'css') windowTitleInput.value = 'animations.css';
+                displayTitle.textContent = windowTitleInput.value;
+            });
+
+            // Theme switching
+            function applyTheme(theme) {
+                if (theme === 'dracula') {
+                    codeWindow.style.background = '#282a36';
+                    codeEditorArea.style.color = '#f8f8f2';
+                    windowHeader.style.background = '#21222c';
+                    displayTitle.style.color = '#bd93f9';
+                } else if (theme === 'nord') {
+                    codeWindow.style.background = '#2e3440';
+                    codeEditorArea.style.color = '#eceff4';
+                    windowHeader.style.background = '#242933';
+                    displayTitle.style.color = '#88c0d0';
+                } else if (theme === 'github-light') {
+                    codeWindow.style.background = '#ffffff';
+                    codeEditorArea.style.color = '#24292e';
+                    windowHeader.style.background = '#f6f8fa';
+                    displayTitle.style.color = '#57606a';
+                } else {
+                    // Dark modern
+                    codeWindow.style.background = '#0d1117';
+                    codeEditorArea.style.color = '#c9d1d9';
+                    windowHeader.style.background = '#161b22';
+                    displayTitle.style.color = '#8b949e';
+                }
+            }
+            themeSelect.addEventListener('change', (e) => applyTheme(e.target.value));
+            applyTheme('dark-modern');
+
+            // Background switcher
+            function applyBg(bg) {
+                if (bg === 'blue-cyan') exportStage.style.background = 'linear-gradient(135deg, #0284c7 0%, #06b6d4 100%)';
+                else if (bg === 'sunset') exportStage.style.background = 'linear-gradient(135deg, #f97316 0%, #ec4899 50%, #8b5cf6 100%)';
+                else if (bg === 'emerald') exportStage.style.background = 'linear-gradient(135deg, #059669 0%, #0d9488 50%, #0284c7 100%)';
+                else if (bg === 'slate') exportStage.style.background = 'linear-gradient(135deg, #0f172a 0%, #1e293b 100%)';
+                else if (bg === 'transparent') exportStage.style.background = 'transparent';
+                else exportStage.style.background = 'linear-gradient(135deg, #6366f1 0%, #a855f7 50%, #ec4899 100%)';
+            }
+            bgSelect.addEventListener('change', (e) => applyBg(e.target.value));
+
+            // Padding switcher
+            paddingSelect.addEventListener('change', (e) => {
+                exportStage.style.padding = e.target.value;
+            });
+
+            // Export PNG
+            btnDownloadPng.addEventListener('click', async () => {
+                btnDownloadPng.disabled = true;
+                btnDownloadPng.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Rendering...';
+                try {
+                    const canvas = await html2canvas(exportStage, {
+                        scale: 2,
+                        useCORS: true,
+                        backgroundColor: bgSelect.value === 'transparent' ? null : null
+                    });
+                    const url = canvas.toDataURL('image/png');
+                    const a = document.createElement('a');
+                    const filename = (windowTitleInput.value.trim() || 'code-card').replace(/\.[^.]+$/, '') + '-codesnap.png';
+                    a.download = filename;
+                    a.href = url;
+                    a.click();
+                    showToast(`Downloaded ${filename}`);
+                } catch (err) {
+                    alert('Export failed: ' + err.message);
+                } finally {
+                    btnDownloadPng.disabled = false;
+                    btnDownloadPng.innerHTML = '<i class="fas fa-download"></i> Download PNG Card';
+                }
+            });
+
+            // Copy Image
+            btnCopyImage.addEventListener('click', async () => {
+                try {
+                    const canvas = await html2canvas(exportStage, { scale: 2, useCORS: true });
+                    canvas.toBlob(async (blob) => {
+                        if (blob && navigator.clipboard && navigator.clipboard.write) {
+                            await navigator.clipboard.write([new ClipboardItem({ 'image/png': blob })]);
+                            showToast('Image copied to clipboard!');
+                        } else {
+                            showToast('Clipboard write not supported in this browser');
+                        }
+                    });
+                } catch (err) {
+                    showToast('Failed to copy: ' + err.message);
+                }
+            });
+        })();
+    </script>
+</body>
+</html>

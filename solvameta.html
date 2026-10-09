@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes" />
+    <title>SOLVA-Meta & SEO – SOLVATECH Student Tools</title>
+    <meta name="description" content="Generate HTML meta tags, OpenGraph social cards, and preview Google SERP and Twitter cards." />
+
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
+
+    <style>
+        :root {
+            --primary: #1E88E5;
+            --primary-dark: #1565C0;
+            --text-dark: #0B1A2E;
+            --text-muted: #5a6b7b;
+            --bg-page: #f4f7fc;
+            --card-bg: #ffffff;
+            --border-color: #e2e8f0;
+            --radius-lg: 16px;
+            --radius-md: 10px;
+            --shadow-subtle: 0 4px 14px rgba(11, 26, 46, 0.05);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            background: var(--bg-page);
+            color: var(--text-dark);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 1rem 1rem 3rem;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        a { text-decoration: none; color: inherit; }
+        .container { width: 100%; max-width: 960px; margin: 0 auto; }
+
+        /* Loading */
+        .loading-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: var(--bg-page); display: flex; flex-direction: column; align-items: center; justify-content: center;
+            z-index: 9999; transition: opacity 0.4s ease;
+        }
+        .loading-overlay.hidden { opacity: 0; pointer-events: none; }
+        .loading-spinner {
+            width: 44px; height: 44px; border: 4px solid #d0d7de; border-top-color: var(--primary);
+            border-radius: 50%; animation: spin 0.8s linear infinite; margin-bottom: 1rem;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        /* Top Nav */
+        .top-nav {
+            display: flex; align-items: center; justify-content: space-between;
+            margin-bottom: 1.5rem; flex-wrap: wrap; gap: 0.8rem;
+        }
+        .brand { display: flex; align-items: center; gap: 0.5rem; }
+        .brand-logo { font-size: 1.8rem; color: var(--primary); }
+        .brand-text { font-size: 1.4rem; font-weight: 800; color: var(--text-dark); }
+        .brand-text span { color: var(--primary); }
+
+        .back-btn {
+            display: inline-flex; align-items: center; gap: 0.4rem;
+            font-weight: 600; color: var(--primary); font-size: 0.88rem;
+            background: #fff; padding: 0.45rem 0.9rem; border-radius: 8px;
+            border: 1px solid var(--border-color); box-shadow: var(--shadow-subtle);
+            transition: all 0.2s ease;
+        }
+        .back-btn:hover { color: var(--primary-dark); transform: translateX(-2px); }
+
+        /* Page Header */
+        .page-header { text-align: center; margin-bottom: 1.8rem; }
+        .page-header h1 { font-size: 2rem; font-weight: 900; color: var(--text-dark); }
+        .page-header h1 span { color: #0284c7; }
+        .page-header p { color: var(--text-muted); font-size: 0.95rem; margin-top: 0.3rem; }
+
+        /* Main Grid */
+        .meta-grid {
+            display: grid; grid-template-columns: 1fr; gap: 1.5rem;
+        }
+        @media (min-width: 820px) {
+            .meta-grid { grid-template-columns: 1fr 1fr; }
+        }
+
+        /* Form Card */
+        .form-card {
+            background: #fff; border-radius: var(--radius-lg); padding: 1.5rem;
+            border: 1px solid var(--border-color); box-shadow: var(--shadow-subtle);
+        }
+        .form-card h2 {
+            font-size: 1.15rem; font-weight: 800; margin-bottom: 1rem;
+            display: flex; align-items: center; gap: 0.4rem; color: var(--text-dark);
+        }
+        .field { margin-bottom: 1.1rem; }
+        .field-label-row {
+            display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.35rem;
+        }
+        .field label {
+            font-size: 0.75rem; font-weight: 700; color: var(--text-dark);
+            text-transform: uppercase; letter-spacing: 0.5px;
+        }
+        .counter { font-size: 0.72rem; color: var(--text-muted); font-weight: 600; }
+        .counter.good { color: #16a34a; }
+        .counter.warn { color: #d97706; }
+        .input-text, .input-area {
+            width: 100%; padding: 0.65rem 0.85rem; border-radius: 8px;
+            border: 1px solid var(--border-color); background: #fafbfc;
+            font-size: 0.88rem; font-family: inherit; color: var(--text-dark); outline: none;
+            transition: border-color 0.2s;
+        }
+        .input-text:focus, .input-area:focus { border-color: var(--primary); background: #fff; }
+        .input-area { min-height: 80px; resize: vertical; }
+
+        /* Preview Card */
+        .previews-card {
+            display: flex; flex-direction: column; gap: 1.5rem;
+        }
+        .sim-box {
+            background: #fff; border-radius: var(--radius-lg); padding: 1.25rem;
+            border: 1px solid var(--border-color); box-shadow: var(--shadow-subtle);
+        }
+        .sim-title {
+            font-size: 0.8rem; font-weight: 700; color: var(--text-muted);
+            text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 0.8rem;
+            display: flex; align-items: center; gap: 0.4rem;
+        }
+
+        /* Google SERP Simulator */
+        .google-preview {
+            font-family: arial, sans-serif; padding: 0.5rem 0;
+        }
+        .google-url-row {
+            display: flex; align-items: center; gap: 0.4rem; font-size: 0.78rem;
+            color: #202124; margin-bottom: 0.2rem;
+        }
+        .google-favicon {
+            width: 16px; height: 16px; border-radius: 50%; background: #1E88E5;
+            display: flex; align-items: center; justify-content: center; color: #fff; font-size: 9px;
+        }
+        .google-title {
+            color: #1a0dab; font-size: 1.15rem; line-height: 1.3; font-weight: 400;
+            text-decoration: none; cursor: pointer; display: block; margin-bottom: 0.25rem;
+            word-break: break-word;
+        }
+        .google-title:hover { text-decoration: underline; }
+        .google-desc {
+            color: #4d5156; font-size: 0.82rem; line-height: 1.4; word-break: break-word;
+        }
+
+        /* Social Card Simulator */
+        .social-card {
+            border-radius: 12px; border: 1px solid #cfd9de; overflow: hidden;
+            background: #fff; max-width: 440px; margin: 0 auto;
+        }
+        .social-img-wrap {
+            width: 100%; height: 180px; background: #e2e8f0;
+            display: flex; align-items: center; justify-content: center;
+            overflow: hidden; position: relative;
+        }
+        .social-img-wrap img { width: 100%; height: 100%; object-fit: cover; }
+        .social-content { padding: 0.8rem; }
+        .social-domain { font-size: 0.72rem; color: #536471; text-transform: uppercase; margin-bottom: 0.2rem; }
+        .social-title { font-size: 0.92rem; font-weight: 700; color: #0f1419; margin-bottom: 0.25rem; line-height: 1.3; }
+        .social-desc { font-size: 0.78rem; color: #536471; line-height: 1.35; }
+
+        /* Code Output Box */
+        .output-box {
+            background: #0f172a; border-radius: var(--radius-lg); padding: 1.25rem;
+            color: #e2e8f0; font-family: monospace; font-size: 0.8rem;
+            position: relative; margin-top: 1.5rem;
+        }
+        .output-header {
+            display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.8rem;
+        }
+        .output-pre {
+            white-space: pre-wrap; word-break: break-all; max-height: 240px; overflow-y: auto;
+            line-height: 1.5; color: #93c5fd;
+        }
+        .btn-copy {
+            background: #1E88E5; border: none; border-radius: 6px; padding: 0.4rem 0.8rem;
+            color: #fff; font-size: 0.78rem; font-weight: 700; cursor: pointer;
+            transition: background 0.2s;
+        }
+        .btn-copy:hover { background: #1565C0; }
+
+        /* Toast */
+        .toast {
+            position: fixed; bottom: 20px; right: 20px; background: #0B1A2E; color: #fff;
+            padding: 0.75rem 1.25rem; border-radius: 10px; font-weight: 600; font-size: 0.88rem;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2); display: flex; align-items: center; gap: 0.5rem;
+            z-index: 10001; opacity: 0; transform: translateY(20px); transition: all 0.3s ease;
+            pointer-events: none;
+        }
+        .toast.show { opacity: 1; transform: translateY(0); }
+    </style>
+</head>
+<body>
+    <div class="loading-overlay" id="loadingOverlay">
+        <div class="loading-spinner"></div>
+        <p>Checking student access...</p>
+    </div>
+
+    <div class="container" id="mainContent" style="display: none;">
+        <div class="top-nav">
+            <div class="brand">
+                <i class="fas fa-cube brand-logo"></i>
+                <div class="brand-text">SOLVA<span>TECH</span></div>
+            </div>
+            <a href="index.html" class="back-btn"><i class="fas fa-arrow-left"></i> Back to Student Tools</a>
+        </div>
+
+        <div class="page-header">
+            <h1>SOLVA-<span>Meta & SEO</span></h1>
+            <p>Generate production-ready HTML `<head>` tags and preview how your site looks on Google, Twitter, and Facebook.</p>
+        </div>
+
+        <div class="meta-grid">
+            <!-- Left: Inputs -->
+            <div class="form-card">
+                <h2><i class="fas fa-edit" style="color: var(--primary);"></i> Metadata Settings</h2>
+
+                <div class="field">
+                    <div class="field-label-row">
+                        <label for="inputTitle">Page Title</label>
+                        <span class="counter" id="titleCount">0 / 60</span>
+                    </div>
+                    <input type="text" id="inputTitle" class="input-text" value="SOLVATECH Student Portfolio – Fullstack Projects" />
+                </div>
+
+                <div class="field">
+                    <div class="field-label-row">
+                        <label for="inputDesc">Meta Description</label>
+                        <span class="counter" id="descCount">0 / 160</span>
+                    </div>
+                    <textarea id="inputDesc" class="input-area">Explore modern fullstack development projects, web applications, and developer tools created by SOLVATECH academy students.</textarea>
+                </div>
+
+                <div class="field">
+                    <label for="inputUrl">Canonical Site URL</label>
+                    <input type="url" id="inputUrl" class="input-text" value="https://solvatech.academy/portfolio" />
+                </div>
+
+                <div class="field">
+                    <label for="inputImage">OpenGraph Image URL (1200x630)</label>
+                    <input type="url" id="inputImage" class="input-text" value="https://images.unsplash.com/photo-1517694712202-14dd9538aa97?w=1200" />
+                </div>
+
+                <div class="field">
+                    <label for="inputAuthor">Author / Student Name</label>
+                    <input type="text" id="inputAuthor" class="input-text" value="SOLVATECH Student" />
+                </div>
+            </div>
+
+            <!-- Right: Realtime Simulators -->
+            <div class="previews-card">
+                <!-- Google SERP -->
+                <div class="sim-box">
+                    <div class="sim-title"><i class="fab fa-google"></i> Google Search SERP Preview</div>
+                    <div class="google-preview">
+                        <div class="google-url-row">
+                            <span class="google-favicon"><i class="fas fa-globe"></i></span>
+                            <span id="previewGoogleUrl">solvatech.academy &gt; portfolio</span>
+                        </div>
+                        <div class="google-title" id="previewGoogleTitle">SOLVATECH Student Portfolio – Fullstack Projects</div>
+                        <div class="google-desc" id="previewGoogleDesc">Explore modern fullstack development projects, web applications, and developer tools created by SOLVATECH academy students.</div>
+                    </div>
+                </div>
+
+                <!-- Twitter / OpenGraph Card -->
+                <div class="sim-box">
+                    <div class="sim-title"><i class="fab fa-twitter"></i> Social Share Card Preview</div>
+                    <div class="social-card">
+                        <div class="social-img-wrap">
+                            <img id="previewCardImg" src="https://images.unsplash.com/photo-1517694712202-14dd9538aa97?w=1200" alt="Preview Image" onerror="this.src='https://via.placeholder.com/600x315?text=Preview+Image'" />
+                        </div>
+                        <div class="social-content">
+                            <div class="social-domain" id="previewCardDomain">solvatech.academy</div>
+                            <div class="social-title" id="previewCardTitle">SOLVATECH Student Portfolio – Fullstack Projects</div>
+                            <div class="social-desc" id="previewCardDesc">Explore modern fullstack development projects, web applications, and developer tools created by SOLVATECH academy students.</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Generated Tags -->
+        <div class="output-box">
+            <div class="output-header">
+                <span style="font-weight: 700; color: #fff;"><i class="fas fa-code"></i> Ready-to-Paste HTML Meta Tags</span>
+                <button class="btn-copy" id="btnCopyTags"><i class="fas fa-copy"></i> Copy HTML</button>
+            </div>
+            <pre class="output-pre" id="metaOutput"></pre>
+        </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div class="toast" id="toastMessage">
+        <i class="fas fa-check-circle" style="color: #10b981;"></i>
+        <span id="toastText">HTML tags copied to clipboard</span>
+    </div>
+
+    <script>
+        (function() {
+            // Session check
+            const SESSION_FLAG = 'solvatechToolsVerified';
+            const SESSION_TIME = 'solvatechToolsTime';
+            const SESSION_DURATION = 2 * 60 * 60 * 1000;
+
+            function isSessionValid() {
+                const flag = localStorage.getItem(SESSION_FLAG);
+                const time = parseInt(localStorage.getItem(SESSION_TIME) || '0');
+                return flag === 'true' && (Date.now() - time) < SESSION_DURATION;
+            }
+
+            if (!isSessionValid()) {
+                setTimeout(() => window.location.href = 'index.html', 400);
+                return;
+            }
+
+            document.getElementById('loadingOverlay').classList.add('hidden');
+            document.getElementById('mainContent').style.display = 'block';
+
+            function showToast(msg) {
+                const toast = document.getElementById('toastMessage');
+                const toastText = document.getElementById('toastText');
+                toastText.textContent = msg;
+                toast.classList.add('show');
+                setTimeout(() => toast.classList.remove('show'), 2200);
+            }
+
+            // Elements
+            const inputTitle = document.getElementById('inputTitle');
+            const inputDesc = document.getElementById('inputDesc');
+            const inputUrl = document.getElementById('inputUrl');
+            const inputImage = document.getElementById('inputImage');
+            const inputAuthor = document.getElementById('inputAuthor');
+
+            const titleCount = document.getElementById('titleCount');
+            const descCount = document.getElementById('descCount');
+
+            const previewGoogleTitle = document.getElementById('previewGoogleTitle');
+            const previewGoogleDesc = document.getElementById('previewGoogleDesc');
+            const previewGoogleUrl = document.getElementById('previewGoogleUrl');
+
+            const previewCardImg = document.getElementById('previewCardImg');
+            const previewCardTitle = document.getElementById('previewCardTitle');
+            const previewCardDesc = document.getElementById('previewCardDesc');
+            const previewCardDomain = document.getElementById('previewCardDomain');
+
+            const metaOutput = document.getElementById('metaOutput');
+            const btnCopyTags = document.getElementById('btnCopyTags');
+
+            function updatePreviews() {
+                const title = inputTitle.value.trim() || 'Your Website Title';
+                const desc = inputDesc.value.trim() || 'Add a concise summary describing your project...';
+                const url = inputUrl.value.trim() || 'https://example.com';
+                const image = inputImage.value.trim() || 'https://via.placeholder.com/1200x630';
+                const author = inputAuthor.value.trim() || 'Author';
+
+                // Counters
+                titleCount.textContent = `${title.length} / 60`;
+                titleCount.className = `counter ${title.length >= 40 && title.length <= 60 ? 'good' : 'warn'}`;
+
+                descCount.textContent = `${desc.length} / 160`;
+                descCount.className = `counter ${desc.length >= 100 && desc.length <= 160 ? 'good' : 'warn'}`;
+
+                // Extract domain
+                let domain = 'example.com';
+                try {
+                    const parsed = new URL(url);
+                    domain = parsed.hostname;
+                } catch(e) {}
+
+                // Google SERP
+                previewGoogleTitle.textContent = title;
+                previewGoogleDesc.textContent = desc;
+                previewGoogleUrl.textContent = `${domain} > page`;
+
+                // Social card
+                previewCardTitle.textContent = title;
+                previewCardDesc.textContent = desc;
+                previewCardDomain.textContent = domain;
+                previewCardImg.src = image;
+
+                // Code generation
+                const tags = `<!-- Primary Meta Tags -->
+<title>${title}</title>
+<meta name="title" content="${title}" />
+<meta name="description" content="${desc}" />
+<meta name="author" content="${author}" />
+<link rel="canonical" href="${url}" />
+
+<!-- Open Graph / Facebook / LinkedIn -->
+<meta property="og:type" content="website" />
+<meta property="og:url" content="${url}" />
+<meta property="og:title" content="${title}" />
+<meta property="og:description" content="${desc}" />
+<meta property="og:image" content="${image}" />
+
+<!-- Twitter / X -->
+<meta property="twitter:card" content="summary_large_image" />
+<meta property="twitter:url" content="${url}" />
+<meta property="twitter:title" content="${title}" />
+<meta property="twitter:description" content="${desc}" />
+<meta property="twitter:image" content="${image}" />`;
+
+                metaOutput.textContent = tags;
+            }
+
+            [inputTitle, inputDesc, inputUrl, inputImage, inputAuthor].forEach(el => {
+                el.addEventListener('input', updatePreviews);
+            });
+
+            btnCopyTags.addEventListener('click', () => {
+                navigator.clipboard.writeText(metaOutput.textContent).then(() => {
+                    showToast('HTML meta tags copied!');
+                });
+            });
+
+            updatePreviews();
+        })();
+    </script>
+</body>
+</html>

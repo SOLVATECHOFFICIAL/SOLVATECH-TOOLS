@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes" />
-    <title>SOLVATECH Student Tools</title>
-    <meta name="description" content="SOLVATECH Student Tools - Workspace for web development tools, image optimization, developer resources, and converters." />
+    <title>SOLVATECH Student Tools – Developer Workspace</title>
+    <meta name="description" content="Workspace for SOLVATECH academy students featuring image compression, code cards, SEO simulator, regex playground, markdown docs, converters, and tech stacks." />
 
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
@@ -27,9 +27,9 @@
             --bg-page: #f4f7fc;
             --card-bg: #ffffff;
             --border-color: #e2e8f0;
-            --success: #10b981;
-            --radius-lg: 18px;
-            --radius-md: 12px;
+            --radius-xl: 18px;
+            --radius-lg: 14px;
+            --radius-md: 10px;
             --shadow-subtle: 0 4px 14px rgba(11, 26, 46, 0.04);
             --shadow-hover: 0 14px 28px rgba(30, 136, 229, 0.12);
         }
@@ -45,7 +45,7 @@
             flex-direction: column;
             align-items: center;
             justify-content: flex-start;
-            padding: 1.5rem 1rem 3rem;
+            padding: 1.5rem 1rem 3.5rem;
             -webkit-font-smoothing: antialiased;
             overflow-x: hidden;
         }
@@ -59,7 +59,7 @@
             transition: max-width 0.4s cubic-bezier(0.16, 1, 0.3, 1);
         }
         .gateway-container.unlocked-mode {
-            max-width: 980px;
+            max-width: 1100px;
         }
 
         /* Branding */
@@ -68,21 +68,20 @@
             align-items: center;
             justify-content: center;
             gap: 0.6rem;
-            margin-bottom: 1rem;
-            margin-top: 0.5rem;
-            animation: fadeInDown 0.6s ease;
+            margin-bottom: 0.8rem;
+            margin-top: 0.4rem;
+            animation: fadeInDown 0.5s ease;
         }
         .brand-logo {
-            font-size: 2.4rem;
+            font-size: 2.3rem;
             color: var(--primary);
-            filter: drop-shadow(0 4px 10px rgba(30, 136, 229, 0.25));
             transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
         }
         .brand:hover .brand-logo {
             transform: rotate(10deg) scale(1.08);
         }
         .brand-text {
-            font-size: 1.9rem;
+            font-size: 1.85rem;
             font-weight: 800;
             color: var(--text-dark);
             letter-spacing: -0.5px;
@@ -93,46 +92,43 @@
         .hero {
             text-align: center;
             margin-bottom: 1.8rem;
-            animation: fadeIn 0.6s ease 0.1s both;
+            animation: fadeIn 0.5s ease 0.1s both;
         }
         .hero h1 {
-            font-size: 2.1rem;
+            font-size: 2.2rem;
             font-weight: 900;
             color: var(--text-dark);
             line-height: 1.2;
             letter-spacing: -0.5px;
         }
-        .hero h1 span {
-            color: var(--primary);
-            position: relative;
-            display: inline-block;
-        }
+        .hero h1 span { color: var(--primary); }
         .hero p {
-            font-size: 1rem;
+            font-size: 0.98rem;
             color: var(--text-muted);
             margin-top: 0.4rem;
-            max-width: 520px;
+            max-width: 560px;
             margin-left: auto;
             margin-right: auto;
+            line-height: 1.5;
         }
 
         /* Access Section */
         .access-section {
             background: var(--card-bg);
-            border-radius: 20px;
+            border-radius: var(--radius-xl);
             padding: 1.8rem;
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
             margin-bottom: 1.5rem;
             border: 1px solid var(--border-color);
-            animation: scaleIn 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            animation: scaleIn 0.35s cubic-bezier(0.16, 1, 0.3, 1);
         }
         .access-header {
             text-align: center;
             margin-bottom: 1.2rem;
         }
         .access-header h2 {
-            font-size: 1rem;
-            font-weight: 700;
+            font-size: 0.95rem;
+            font-weight: 800;
             color: var(--text-dark);
             letter-spacing: 0.8px;
             text-transform: uppercase;
@@ -150,7 +146,7 @@
             width: 100%;
             padding: 0.9rem 1rem;
             font-size: 1.2rem;
-            font-weight: 700;
+            font-weight: 800;
             text-align: center;
             letter-spacing: 4px;
             border: 2px solid #d0d7de;
@@ -193,9 +189,7 @@
             transform: translateY(-1px);
             box-shadow: 0 6px 16px rgba(30, 136, 229, 0.35);
         }
-        .submit-btn:active {
-            transform: scale(0.98);
-        }
+        .submit-btn:active { transform: scale(0.98); }
         .submit-btn:disabled {
             background: #a0c4e8;
             cursor: not-allowed;
@@ -221,7 +215,6 @@
             margin-top: 0.7rem;
             display: none;
             font-weight: 600;
-            animation: fadeIn 0.3s ease;
         }
         .status-message.error { background: #fdecea; color: #d93025; display: block; border: 1px solid #f9d2ce; }
         .status-message.pending { background: #fff8e1; color: #b76e00; display: block; border: 1px solid #ffe8a1; }
@@ -236,7 +229,7 @@
             background: #ffffff;
             border: 1px solid var(--border-color);
             padding: 0.75rem 1.25rem;
-            border-radius: 50px;
+            border-radius: 12px;
             margin-bottom: 1.5rem;
             box-shadow: var(--shadow-subtle);
             flex-wrap: wrap;
@@ -249,30 +242,30 @@
             gap: 0.5rem;
             font-size: 0.88rem;
             font-weight: 700;
-            color: #1e8e3e;
+            color: #15803d;
         }
         .status-dot {
-            width: 10px;
-            height: 10px;
-            background: #10b981;
+            width: 9px;
+            height: 9px;
+            background: #16a34a;
             border-radius: 50%;
             display: inline-block;
-            box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.2);
+            box-shadow: 0 0 0 3px rgba(22, 163, 74, 0.2);
             animation: pulseDot 2s infinite;
         }
         @keyframes pulseDot {
             0%, 100% { transform: scale(1); opacity: 1; }
             50% { transform: scale(1.2); opacity: 0.8; }
         }
-        .session-right {
-            display: flex;
-            align-items: center;
-            gap: 0.6rem;
+        .session-meta-text {
+            font-size: 0.82rem;
+            color: var(--text-muted);
+            font-weight: 500;
         }
         .btn-lock {
             background: transparent;
             border: 1px solid #d0d7de;
-            border-radius: 20px;
+            border-radius: 8px;
             padding: 0.35rem 0.8rem;
             font-size: 0.8rem;
             font-weight: 600;
@@ -289,27 +282,28 @@
             background: #fef2f2;
         }
 
-        /* Tools Section */
+        /* Controls & Filter Bar */
         .tools-section {
             width: 100%;
             animation: fadeIn 0.4s ease;
         }
         .tools-filter-bar {
             display: flex;
-            gap: 0.8rem;
+            gap: 1rem;
             align-items: center;
             margin-bottom: 1.5rem;
             flex-wrap: wrap;
+            justify-content: space-between;
         }
         .search-tools {
             flex: 1;
-            min-width: 220px;
+            min-width: 260px;
             position: relative;
         }
         .search-tools input {
             width: 100%;
             padding: 0.75rem 1rem 0.75rem 2.4rem;
-            border-radius: 12px;
+            border-radius: 10px;
             border: 1px solid var(--border-color);
             background: #fff;
             font-size: 0.9rem;
@@ -328,14 +322,34 @@
             color: #94a3b8;
             font-size: 0.9rem;
         }
-        .tool-badge-pill {
-            font-size: 0.78rem;
-            background: #eef2f6;
-            color: var(--text-dark);
-            padding: 0.4rem 0.8rem;
-            border-radius: 20px;
+
+        /* Category Filter Tabs (Functional segmented buttons) */
+        .category-tabs {
+            display: flex;
+            gap: 0.4rem;
+            background: #fff;
+            padding: 0.3rem;
+            border-radius: 10px;
+            border: 1px solid var(--border-color);
+            overflow-x: auto;
+        }
+        .cat-btn {
+            background: transparent;
+            border: none;
+            border-radius: 8px;
+            padding: 0.45rem 0.8rem;
+            font-size: 0.82rem;
             font-weight: 600;
+            color: var(--text-muted);
+            cursor: pointer;
+            transition: all 0.2s ease;
             white-space: nowrap;
+        }
+        .cat-btn:hover { color: var(--text-dark); background: #f8fafc; }
+        .cat-btn.active {
+            background: var(--primary);
+            color: #fff;
+            box-shadow: 0 2px 6px rgba(30, 136, 229, 0.25);
         }
 
         /* Tools Grid */
@@ -348,14 +362,14 @@
         @media (min-width: 680px) {
             .tools-grid { grid-template-columns: repeat(2, 1fr); }
         }
-        @media (min-width: 960px) {
-            .tools-grid { grid-template-columns: repeat(2, 1fr); }
+        @media (min-width: 1000px) {
+            .tools-grid { grid-template-columns: repeat(3, 1fr); }
         }
 
         .tool-card {
             background: var(--card-bg);
-            border-radius: var(--radius-lg);
-            padding: 1.6rem;
+            border-radius: var(--radius-xl);
+            padding: 1.5rem;
             box-shadow: var(--shadow-subtle);
             border: 1px solid var(--border-color);
             transition: all 0.28s cubic-bezier(0.16, 1, 0.3, 1);
@@ -369,7 +383,7 @@
         .tool-card::before {
             content: '';
             position: absolute;
-            top: 0; left: 0; right: 0; height: 4px;
+            top: 0; left: 0; right: 0; height: 3px;
             background: transparent;
             transition: background 0.25s ease;
         }
@@ -379,8 +393,9 @@
             border-color: #bcd8fb;
         }
         .tool-card:hover::before {
-            background: linear-gradient(90deg, #1E88E5, #64B5F6);
+            background: var(--primary);
         }
+
         .tool-header {
             display: flex;
             align-items: flex-start;
@@ -388,147 +403,73 @@
             margin-bottom: 1rem;
         }
         .tool-icon-wrap {
-            width: 52px;
-            height: 52px;
-            border-radius: 14px;
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 1.6rem;
+            font-size: 1.45rem;
             transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
         }
         .tool-card:hover .tool-icon-wrap {
-            transform: scale(1.1) rotate(4deg);
+            transform: scale(1.08) rotate(4deg);
         }
+
         .icon-compress { background: #e0f2fe; color: #0284c7; }
         .icon-convert { background: #fef3c7; color: #d97706; }
-        .icon-stack { background: #ede9fe; color: #7c3aed; }
+        .icon-codesnap { background: #ede9fe; color: #7c3aed; }
+        .icon-meta { background: #dbeafe; color: #2563eb; }
+        .icon-regex { background: #fef9c3; color: #ca8a04; }
+        .icon-markdown { background: #e0e7ff; color: #4f46e5; }
+        .icon-stack { background: #fae8ff; color: #a21caf; }
         .icon-tools { background: #dcfce7; color: #16a34a; }
 
-        .tool-tag {
+        .tool-category-text {
             font-size: 0.72rem;
             font-weight: 700;
-            padding: 0.25rem 0.6rem;
-            border-radius: 20px;
+            color: var(--text-muted);
             text-transform: uppercase;
             letter-spacing: 0.5px;
         }
-        .tag-hot { background: #fef2f2; color: #ef4444; }
-        .tag-new { background: #ecfdf5; color: #059669; }
-        .tag-resource { background: #f5f3ff; color: #6d28d9; }
-        .tag-guide { background: #f0fdf4; color: #15803d; }
 
         .tool-content h3 {
-            font-size: 1.25rem;
+            font-size: 1.15rem;
             font-weight: 800;
             color: var(--text-dark);
-            margin-bottom: 0.4rem;
-            display: flex;
-            align-items: center;
-            gap: 0.4rem;
+            margin-bottom: 0.35rem;
         }
         .tool-content p {
-            font-size: 0.9rem;
+            font-size: 0.88rem;
             color: var(--text-muted);
             line-height: 1.45;
-            margin-bottom: 1.2rem;
+            margin-bottom: 1.1rem;
         }
-        .tool-features {
+
+        /* Zero-pill metadata line */
+        .tool-meta-line {
             display: flex;
+            align-items: center;
+            gap: 0.35rem;
+            font-size: 0.78rem;
+            color: #64748b;
+            margin-bottom: 1.1rem;
             flex-wrap: wrap;
-            gap: 0.4rem;
-            margin-bottom: 1.2rem;
         }
-        .tool-feature-badge {
-            font-size: 0.75rem;
-            background: #f1f5f9;
-            color: #475569;
-            padding: 0.2rem 0.5rem;
-            border-radius: 6px;
-            font-weight: 500;
-        }
+        .tool-meta-sep { color: #cbd5e1; }
+
         .tool-action {
             display: inline-flex;
             align-items: center;
             gap: 0.4rem;
             color: var(--primary);
             font-weight: 700;
-            font-size: 0.9rem;
+            font-size: 0.88rem;
             transition: gap 0.2s ease;
         }
         .tool-card:hover .tool-action {
-            gap: 0.7rem;
+            gap: 0.65rem;
             color: var(--primary-dark);
-        }
-
-        /* Discussion & Suggestions Section */
-        .suggestions-banner {
-            background: linear-gradient(135deg, #0B1A2E 0%, #1e3a5f 100%);
-            color: #ffffff;
-            border-radius: var(--radius-lg);
-            padding: 1.8rem;
-            margin-bottom: 2rem;
-            display: flex;
-            flex-direction: column;
-            gap: 1.2rem;
-            box-shadow: 0 10px 25px rgba(11, 26, 46, 0.15);
-            position: relative;
-            overflow: hidden;
-        }
-        .suggestions-banner::after {
-            content: '';
-            position: absolute;
-            right: -20px;
-            bottom: -20px;
-            width: 140px;
-            height: 140px;
-            background: radial-gradient(circle, rgba(30, 136, 229, 0.3) 0%, transparent 70%);
-            pointer-events: none;
-        }
-        .suggestions-content h2 {
-            font-size: 1.3rem;
-            font-weight: 800;
-            margin-bottom: 0.4rem;
-            display: flex;
-            align-items: center;
-            gap: 0.6rem;
-        }
-        .suggestions-content p {
-            font-size: 0.92rem;
-            color: #cbd5e1;
-            line-height: 1.5;
-        }
-        .proposed-tools-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 0.8rem;
-            margin-top: 0.4rem;
-        }
-        .proposed-card {
-            background: rgba(255, 255, 255, 0.08);
-            border: 1px solid rgba(255, 255, 255, 0.12);
-            backdrop-filter: blur(8px);
-            border-radius: 12px;
-            padding: 0.9rem;
-            transition: all 0.2s ease;
-        }
-        .proposed-card:hover {
-            background: rgba(255, 255, 255, 0.14);
-            transform: translateY(-2px);
-        }
-        .proposed-title {
-            font-weight: 700;
-            font-size: 0.95rem;
-            margin-bottom: 0.2rem;
-            display: flex;
-            align-items: center;
-            gap: 0.4rem;
-            color: #93c5fd;
-        }
-        .proposed-desc {
-            font-size: 0.78rem;
-            color: #94a3b8;
-            line-height: 1.3;
         }
 
         /* Toast */
@@ -539,9 +480,9 @@
             background: #0B1A2E;
             color: #fff;
             padding: 0.8rem 1.4rem;
-            border-radius: 12px;
+            border-radius: 10px;
             font-weight: 600;
-            font-size: 0.9rem;
+            font-size: 0.88rem;
             box-shadow: 0 10px 25px rgba(0,0,0,0.2);
             display: flex;
             align-items: center;
@@ -577,11 +518,11 @@
         </div>
 
         <div class="hero">
-            <h1>STUDENT <span>TOOLKIT</span></h1>
-            <p>High-performance web utilities, converters, asset compressors, and developer stacks for SOLVATECH students.</p>
+            <h1>STUDENT <span>DEVELOPER SUITE</span></h1>
+            <p>Production tools built for SOLVATECH Academy web development, project optimization, asset formatting, and live debugging.</p>
         </div>
 
-        <!-- Access Key Verification Form (only shown if not verified) -->
+        <!-- Access Key Verification Form (only shown if session is locked/expired) -->
         <div class="access-section" id="accessSection">
             <div class="access-header">
                 <h2>ENTER YOUR SOLVATECH ACCESS KEY</h2>
@@ -609,12 +550,13 @@
             <div id="statusMessage" class="status-message"></div>
         </div>
 
-        <!-- Unlocked Tools Dashboard -->
+        <!-- Unlocked Tools Suite Dashboard -->
         <div class="tools-section" id="toolsSection" style="display: none;">
             <div class="session-bar">
                 <div class="session-left">
                     <span class="status-dot"></span>
-                    <span>SOLVATECH ACCESS ACTIVE</span>
+                    <span>SOLVATECH STUDENT ACCESS VERIFIED</span>
+                    <span class="session-meta-text">· Active Session (2h)</span>
                 </div>
                 <div class="session-right">
                     <button id="lockBtn" class="btn-lock" title="Lock access or change key">
@@ -623,32 +565,39 @@
                 </div>
             </div>
 
+            <!-- Search and Category Filters -->
             <div class="tools-filter-bar">
                 <div class="search-tools">
                     <i class="fas fa-search"></i>
-                    <input type="text" id="toolSearch" placeholder="Search tools and references..." autocomplete="off" />
+                    <input type="text" id="toolSearch" placeholder="Search developer tools & utilities..." autocomplete="off" />
                 </div>
-                <div class="tool-badge-pill">
-                    <i class="fas fa-layer-group"></i> 4 Tools Available
+                <div class="category-tabs">
+                    <button class="cat-btn active" data-cat="all">All Tools (8)</button>
+                    <button class="cat-btn" data-cat="utilities">Utilities</button>
+                    <button class="cat-btn" data-cat="code">Code & Docs</button>
+                    <button class="cat-btn" data-cat="reference">Reference</button>
                 </div>
             </div>
 
+            <!-- The Complete 8-Tool Suite Grid -->
             <div class="tools-grid" id="toolsGrid">
-                <!-- Tool 1: SOLVA-Compress -->
-                <a href="solvacompress.html" class="tool-card" data-tool="compress image optimizer png jpg webp resize">
+                <!-- 1. SOLVA-Compress -->
+                <a href="solvacompress.html" class="tool-card" data-cat="utilities" data-tool="compress image webp png jpg resize optimizer photo batch zip">
                     <div class="tool-header">
                         <div class="tool-icon-wrap icon-compress">
                             <i class="fas fa-image"></i>
                         </div>
-                        <span class="tool-tag tag-hot">Upgraded</span>
+                        <span class="tool-category-text">Media Optimizer</span>
                     </div>
                     <div class="tool-content">
-                        <h3>SOLVA-Compress <i class="fas fa-sparkles" style="font-size: 0.9rem; color: #0284c7;"></i></h3>
-                        <p>Smart browser-based image compression. Keep original filenames or add customizable suffixes, choose WebP/JPG/PNG formats, and compare visual before/after.</p>
-                        <div class="tool-features">
-                            <span class="tool-feature-badge"><i class="fas fa-check"></i> Custom Naming</span>
-                            <span class="tool-feature-badge"><i class="fas fa-check"></i> Batch ZIP</span>
-                            <span class="tool-feature-badge"><i class="fas fa-check"></i> Before/After Preview</span>
+                        <h3>SOLVA-Compress</h3>
+                        <p>Client-side image optimizer with customizable naming patterns, WebP/JPG/PNG conversion, and before/after comparison modal.</p>
+                        <div class="tool-meta-line">
+                            <span>Custom Naming</span>
+                            <span class="tool-meta-sep">·</span>
+                            <span>Batch ZIP</span>
+                            <span class="tool-meta-sep">·</span>
+                            <span>Visual Diff</span>
                         </div>
                     </div>
                     <div class="tool-action">
@@ -657,67 +606,173 @@
                     </div>
                 </a>
 
-                <!-- Tool 2: SOLVA-Convert (NEW!) -->
-                <a href="solvaconvert.html" class="tool-card" data-tool="convert units px rem color hex rgb hsl base64 json formatter contrast wcag">
+                <!-- 2. SOLVA-Convert -->
+                <a href="solvaconvert.html" class="tool-card" data-cat="utilities" data-tool="convert units px rem em color hex rgb hsl contrast wcag base64 json formatter">
                     <div class="tool-header">
                         <div class="tool-icon-wrap icon-convert">
                             <i class="fas fa-calculator"></i>
                         </div>
-                        <span class="tool-tag tag-new">New Utility</span>
+                        <span class="tool-category-text">Dev Utility</span>
                     </div>
                     <div class="tool-content">
-                        <h3>SOLVA-Convert <i class="fas fa-bolt" style="font-size: 0.9rem; color: #d97706;"></i></h3>
-                        <p>Student developer swiss-army knife: PX to REM/EM converter, live Hex/RGB/HSL color tool with WCAG contrast checker, Base64 encoder, and JSON beautifier.</p>
-                        <div class="tool-features">
-                            <span class="tool-feature-badge"><i class="fas fa-check"></i> PX to REM</span>
-                            <span class="tool-feature-badge"><i class="fas fa-check"></i> WCAG Contrast</span>
-                            <span class="tool-feature-badge"><i class="fas fa-check"></i> JSON Validator</span>
+                        <h3>SOLVA-Convert</h3>
+                        <p>CSS unit calculator (PX to REM/EM/VW), color palette converter with WCAG AA/AAA contrast checker, Base64 encoder, and JSON formatter.</p>
+                        <div class="tool-meta-line">
+                            <span>Unit Scales</span>
+                            <span class="tool-meta-sep">·</span>
+                            <span>WCAG Contrast</span>
+                            <span class="tool-meta-sep">·</span>
+                            <span>JSON Tools</span>
                         </div>
                     </div>
                     <div class="tool-action">
-                        <span>Open Converter Suite</span>
+                        <span>Open Converters</span>
                         <i class="fas fa-arrow-right"></i>
                     </div>
                 </a>
 
-                <!-- Tool 3: SOLVA-Stack -->
-                <a href="solvastack.html" class="tool-card" data-tool="stack resources libraries hosting fonts icons frameworks dev">
+                <!-- 3. SOLVA-CodeSnap -->
+                <a href="solvacodesnap.html" class="tool-card" data-cat="code" data-tool="codesnap code screenshot card snippet syntax highlight export png image share">
+                    <div class="tool-header">
+                        <div class="tool-icon-wrap icon-codesnap">
+                            <i class="fas fa-code"></i>
+                        </div>
+                        <span class="tool-category-text">Presentation</span>
+                    </div>
+                    <div class="tool-content">
+                        <h3>SOLVA-CodeSnap</h3>
+                        <p>Generate high-resolution code snippet cards for assignment submissions, technical blog posts, portfolios, and presentations.</p>
+                        <div class="tool-meta-line">
+                            <span>Mac Window</span>
+                            <span class="tool-meta-sep">·</span>
+                            <span>Mesh Gradients</span>
+                            <span class="tool-meta-sep">·</span>
+                            <span>PNG Export</span>
+                        </div>
+                    </div>
+                    <div class="tool-action">
+                        <span>Create Code Card</span>
+                        <i class="fas fa-arrow-right"></i>
+                    </div>
+                </a>
+
+                <!-- 4. SOLVA-Meta & SEO -->
+                <a href="solvameta.html" class="tool-card" data-cat="utilities" data-tool="meta seo opengraph tags twitter card google serp preview head social">
+                    <div class="tool-header">
+                        <div class="tool-icon-wrap icon-meta">
+                            <i class="fas fa-tags"></i>
+                        </div>
+                        <span class="tool-category-text">SEO & Social</span>
+                    </div>
+                    <div class="tool-content">
+                        <h3>SOLVA-Meta & SEO</h3>
+                        <p>HTML meta tag builder with live simulators for Google search results, Twitter cards, and OpenGraph social share cards.</p>
+                        <div class="tool-meta-line">
+                            <span>Google SERP</span>
+                            <span class="tool-meta-sep">·</span>
+                            <span>Twitter Card</span>
+                            <span class="tool-meta-sep">·</span>
+                            <span>Copy Head Tags</span>
+                        </div>
+                    </div>
+                    <div class="tool-action">
+                        <span>Simulate Meta</span>
+                        <i class="fas fa-arrow-right"></i>
+                    </div>
+                </a>
+
+                <!-- 5. SOLVA-Regex -->
+                <a href="solvaregex.html" class="tool-card" data-cat="code" data-tool="regex regular expression tester validator pattern match cheatsheet email password">
+                    <div class="tool-header">
+                        <div class="tool-icon-wrap icon-regex">
+                            <i class="fas fa-asterisk"></i>
+                        </div>
+                        <span class="tool-category-text">Validator</span>
+                    </div>
+                    <div class="tool-content">
+                        <h3>SOLVA-Regex</h3>
+                        <p>Interactive regular expression tester with live match highlighter, capture group inspector, and student cheatsheet presets.</p>
+                        <div class="tool-meta-line">
+                            <span>Live Highlighting</span>
+                            <span class="tool-meta-sep">·</span>
+                            <span>Preset Library</span>
+                            <span class="tool-meta-sep">·</span>
+                            <span>Flag Controls</span>
+                        </div>
+                    </div>
+                    <div class="tool-action">
+                        <span>Test Regex</span>
+                        <i class="fas fa-arrow-right"></i>
+                    </div>
+                </a>
+
+                <!-- 6. SOLVA-Markdown -->
+                <a href="solvamarkdown.html" class="tool-card" data-cat="code" data-tool="markdown readme documentation editor live preview github syntax table">
+                    <div class="tool-header">
+                        <div class="tool-icon-wrap icon-markdown">
+                            <i class="fab fa-markdown"></i>
+                        </div>
+                        <span class="tool-category-text">Documentation</span>
+                    </div>
+                    <div class="tool-content">
+                        <h3>SOLVA-Markdown</h3>
+                        <p>Split-pane documentation and project README editor with GitHub-flavored live HTML preview, quick toolbar, and download.</p>
+                        <div class="tool-meta-line">
+                            <span>GitHub Style</span>
+                            <span class="tool-meta-sep">·</span>
+                            <span>README Templates</span>
+                            <span class="tool-meta-sep">·</span>
+                            <span>HTML Export</span>
+                        </div>
+                    </div>
+                    <div class="tool-action">
+                        <span>Edit Docs</span>
+                        <i class="fas fa-arrow-right"></i>
+                    </div>
+                </a>
+
+                <!-- 7. SOLVA-Stack -->
+                <a href="solvastack.html" class="tool-card" data-cat="reference" data-tool="stack resources libraries hosting fonts icons frameworks dev platforms">
                     <div class="tool-header">
                         <div class="tool-icon-wrap icon-stack">
                             <i class="fas fa-cubes"></i>
                         </div>
-                        <span class="tool-tag tag-resource">Resources</span>
+                        <span class="tool-category-text">Directory</span>
                     </div>
                     <div class="tool-content">
                         <h3>SOLVA-Stack</h3>
-                        <p>Curated resource hub for useful developer tools, deployment platforms, UI libraries, free hosting, and essential student APIs.</p>
-                        <div class="tool-features">
-                            <span class="tool-feature-badge">Hosting</span>
-                            <span class="tool-feature-badge">Free APIs</span>
-                            <span class="tool-feature-badge">Libraries</span>
+                        <p>Curated directory of student-friendly development platforms, free hosting, UI frameworks, icon sets, and utility services.</p>
+                        <div class="tool-meta-line">
+                            <span>Free Hosting</span>
+                            <span class="tool-meta-sep">·</span>
+                            <span>Icon Libraries</span>
+                            <span class="tool-meta-sep">·</span>
+                            <span>Student APIs</span>
                         </div>
                     </div>
                     <div class="tool-action">
-                        <span>Explore Tech Stack</span>
+                        <span>Browse Tech Stack</span>
                         <i class="fas fa-arrow-right"></i>
                     </div>
                 </a>
 
-                <!-- Tool 4: SOLVA-Tools -->
-                <a href="solvatools.html" class="tool-card" data-tool="tools guide reference cheat sheet git terminal docker node react">
+                <!-- 8. SOLVA-Tools -->
+                <a href="solvatools.html" class="tool-card" data-cat="reference" data-tool="tools guide reference cheat sheet git terminal docker node react devops">
                     <div class="tool-header">
                         <div class="tool-icon-wrap icon-tools">
                             <i class="fas fa-screwdriver-wrench"></i>
                         </div>
-                        <span class="tool-tag tag-guide">Reference</span>
+                        <span class="tool-category-text">Cheat Sheet</span>
                     </div>
                     <div class="tool-content">
                         <h3>SOLVA-Tools</h3>
-                        <p>Quick reference cheat-sheet and memory guide for web technologies, explaining what each tool does and when to use it.</p>
-                        <div class="tool-features">
-                            <span class="tool-feature-badge">Git & CLI</span>
-                            <span class="tool-feature-badge">Frameworks</span>
-                            <span class="tool-feature-badge">Build Tools</span>
+                        <p>Quick reference cheat sheets and concept explanations for essential web development tools, Git, terminals, and CLI utilities.</p>
+                        <div class="tool-meta-line">
+                            <span>Git Commands</span>
+                            <span class="tool-meta-sep">·</span>
+                            <span>Build Tooling</span>
+                            <span class="tool-meta-sep">·</span>
+                            <span>CLI Basics</span>
                         </div>
                     </div>
                     <div class="tool-action">
@@ -726,46 +781,21 @@
                     </div>
                 </a>
             </div>
-
-            <!-- Future Tools & Discussion Section -->
-            <div class="suggestions-banner">
-                <div class="suggestions-content">
-                    <h2><i class="fas fa-lightbulb" style="color: #fbbf24;"></i> Upcoming Tools Roadmap</h2>
-                    <p>We are continuously expanding the SOLVATECH toolkit! Here are candidate tools being considered for upcoming student releases:</p>
-                    <div class="proposed-tools-grid">
-                        <div class="proposed-card">
-                            <div class="proposed-title"><i class="fas fa-code"></i> SOLVA-CodeSnap</div>
-                            <div class="proposed-desc">Export beautiful syntax-highlighted code cards for project portfolios and presentations.</div>
-                        </div>
-                        <div class="proposed-card">
-                            <div class="proposed-title"><i class="fas fa-tags"></i> SOLVA-Meta & SEO</div>
-                            <div class="proposed-desc">Generate OpenGraph tags, social preview cards, and search metadata for student websites.</div>
-                        </div>
-                        <div class="proposed-card">
-                            <div class="proposed-title"><i class="fas fa-asterisk"></i> SOLVA-Regex Playground</div>
-                            <div class="proposed-desc">Interactive regex tester with pre-built patterns for email, telephone, URL, and security validation.</div>
-                        </div>
-                        <div class="proposed-card">
-                            <div class="proposed-title"><i class="fas fa-file-lines"></i> SOLVA-Markdown Docs</div>
-                            <div class="proposed-desc">Live README editor with instant HTML export and GitHub-compatible badge templates.</div>
-                        </div>
-                    </div>
-                </div>
-            </div>
         </div>
 
         <div style="text-align: center; margin-top: 1.5rem; font-size: 0.75rem; color: #888;">
-            SOLVATECH Student Tools &bull; Secure Access &bull; v2.0
+            SOLVATECH Student Developer Tools &bull; Enterprise Grade &bull; v2.5
         </div>
     </div>
 
+    <!-- Toast Notification -->
     <div class="toast" id="toastMessage">
         <i class="fas fa-check-circle" style="color: #10b981;"></i>
         <span id="toastText">Action completed</span>
     </div>
 
     <script>
-        // Firebase configuration (direct)
+        // Firebase configuration
         const firebaseConfig = {
             apiKey: "AIzaSyBl0rplCgVmTyTsQQ2-yhp-aNdkWpoGXks",
             authDomain: "solvatech-academy.firebaseapp.com",
@@ -779,7 +809,7 @@
         firebase.initializeApp(firebaseConfig);
         const database = firebase.database();
 
-        // DOM elements
+        // Elements
         const accessForm = document.getElementById('accessForm');
         const accessKeyInput = document.getElementById('accessKeyInput');
         const submitBtn = document.getElementById('submitBtn');
@@ -790,13 +820,14 @@
         const gatewayContainer = document.getElementById('gatewayContainer');
         const lockBtn = document.getElementById('lockBtn');
         const toolSearch = document.getElementById('toolSearch');
+        const catButtons = document.querySelectorAll('.cat-btn');
         const toastMessage = document.getElementById('toastMessage');
         const toastText = document.getElementById('toastText');
 
-        // Session management (unified 2-hour session that persists across back-and-forth tool visits)
+        // Session management (unified 2-hour session that persists across all tool navigation)
         const SESSION_FLAG = 'solvatechToolsVerified';
         const SESSION_TIME = 'solvatechToolsTime';
-        const SESSION_DURATION = 2 * 60 * 60 * 1000; // 2 hours
+        const SESSION_DURATION = 2 * 60 * 60 * 1000;
 
         function isSessionValid() {
             const flag = localStorage.getItem(SESSION_FLAG);
@@ -817,7 +848,7 @@
         function showToast(msg) {
             toastText.textContent = msg;
             toastMessage.classList.add('show');
-            setTimeout(() => toastMessage.classList.remove('show'), 2500);
+            setTimeout(() => toastMessage.classList.remove('show'), 2200);
         }
 
         function showStatus(message, type) {
@@ -831,7 +862,7 @@
         function setLoading(isLoading) {
             if (isLoading) {
                 submitBtn.disabled = true;
-                btnText.innerHTML = '<span class="spinner"></span> Checking...';
+                btnText.innerHTML = '<span class="spinner"></span> Verifying...';
             } else {
                 submitBtn.disabled = false;
                 btnText.textContent = 'Verify & Unlock';
@@ -843,7 +874,7 @@
             toolsSection.style.display = 'block';
             gatewayContainer.classList.add('unlocked-mode');
             if (animate) {
-                toolsSection.style.animation = 'fadeIn 0.4s ease';
+                toolsSection.style.animation = 'fadeIn 0.35s ease';
             }
         }
 
@@ -855,33 +886,51 @@
             accessKeyInput.focus();
         }
 
-        // Lock / Switch Key button
+        // Lock button
         if (lockBtn) {
             lockBtn.addEventListener('click', () => {
                 clearSession();
                 lockTools();
-                showStatus('Access key cleared. Enter a key to unlock tools.', 'pending');
-                showToast('Access locked');
+                showStatus('Access key cleared. Enter a valid key to access tools.', 'pending');
+                showToast('Session locked');
             });
         }
 
-        // Live tool search
+        // Category Filter & Search Logic
+        let currentCat = 'all';
+
+        function filterTools() {
+            const term = (toolSearch ? toolSearch.value : '').toLowerCase().trim();
+            const cards = document.querySelectorAll('#toolsGrid .tool-card');
+            cards.forEach(card => {
+                const cardCat = card.getAttribute('data-cat') || '';
+                const cardData = (card.getAttribute('data-tool') || '') + ' ' + card.innerText.toLowerCase();
+
+                const matchesCat = (currentCat === 'all' || cardCat === currentCat);
+                const matchesSearch = (!term || cardData.includes(term));
+
+                if (matchesCat && matchesSearch) {
+                    card.style.display = 'flex';
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+        }
+
+        catButtons.forEach(btn => {
+            btn.addEventListener('click', () => {
+                catButtons.forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                currentCat = btn.getAttribute('data-cat');
+                filterTools();
+            });
+        });
+
         if (toolSearch) {
-            toolSearch.addEventListener('input', (e) => {
-                const term = e.target.value.toLowerCase().trim();
-                const cards = document.querySelectorAll('#toolsGrid .tool-card');
-                cards.forEach(card => {
-                    const data = (card.getAttribute('data-tool') || '') + ' ' + card.innerText.toLowerCase();
-                    if (!term || data.includes(term)) {
-                        card.style.display = 'flex';
-                    } else {
-                        card.style.display = 'none';
-                    }
-                });
-            });
+            toolSearch.addEventListener('input', filterTools);
         }
 
-        // Firebase access key check
+        // Access key check
         async function checkAccessKey(key) {
             const normalizedKey = key.toUpperCase().trim();
             const snapshot = await database.ref('accessKeys').once('value');
@@ -897,15 +946,8 @@
             }
 
             if (!found) return { status: 'invalid' };
-
-            if (found.enabled === false || found.enabled === 'false') {
-                return { status: 'disabled' };
-            }
-
-            if (found.enabled === true || found.enabled === 'true') {
-                return { status: 'approved' };
-            }
-
+            if (found.enabled === false || found.enabled === 'false') return { status: 'disabled' };
+            if (found.enabled === true || found.enabled === 'true') return { status: 'approved' };
             return { status: 'pending' };
         }
 
@@ -924,16 +966,16 @@
                 const result = await checkAccessKey(key);
                 switch (result.status) {
                     case 'approved':
-                        showStatus('Access Granted! Unlocking tools...', 'success');
+                        showStatus('Access Granted! Welcome to SOLVATECH tools.', 'success');
                         setSessionVerified();
                         showToast('Access verified successfully');
-                        setTimeout(() => unlockTools(true), 600);
+                        setTimeout(() => unlockTools(true), 500);
                         break;
                     case 'pending':
-                        showStatus('Access Pending: Your SOLVATECH account has not yet been approved for tool access.', 'pending');
+                        showStatus('Access Pending: Your SOLVATECH account has not yet been approved.', 'pending');
                         break;
                     case 'disabled':
-                        showStatus('Your access key is currently disabled. Please contact support.', 'disabled');
+                        showStatus('Your access key is disabled. Please contact your instructor.', 'disabled');
                         break;
                     case 'invalid':
                     default:
@@ -946,8 +988,7 @@
             }
         });
 
-        // CRITICAL FIX: When user returns to index.html from a tool (e.g. solvacompress),
-        // check if session is already valid! Do NOT wipe the session on page load!
+        // Initialize state on load
         document.addEventListener('DOMContentLoaded', () => {
             if (isSessionValid()) {
                 unlockTools(false);
